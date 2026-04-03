@@ -1,0 +1,126 @@
+CREATE DATABASE COEPDSalesFunnelDb;
+GO
+USE COEPDSalesFunnelDb;
+GO
+CREATE TABLE Leads (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(120) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    Email NVARCHAR(150) NOT NULL,
+    Location NVARCHAR(120) NOT NULL,
+    InterestedDomain NVARCHAR(120) NOT NULL,
+    Source NVARCHAR(50) NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'New',
+    Score NVARCHAR(20) NOT NULL DEFAULT 'Warm',
+    Notes NVARCHAR(2000) NULL,
+    FunnelStage NVARCHAR(30) NOT NULL DEFAULT 'New',
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE UNIQUE INDEX IX_Leads_Email ON Leads(Email);
+CREATE UNIQUE INDEX IX_Leads_Phone ON Leads(Phone);
+CREATE INDEX IX_Leads_CreatedAt ON Leads(CreatedAt);
+CREATE INDEX IX_Leads_Status ON Leads(Status);
+CREATE INDEX IX_Leads_Source ON Leads(Source);
+CREATE INDEX IX_Leads_InterestedDomain ON Leads(InterestedDomain);
+CREATE INDEX IX_Leads_Status_CreatedAt ON Leads(Status, CreatedAt);
+
+CREATE TABLE DemoBookings (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    Day NVARCHAR(40) NOT NULL,
+    Slot NVARCHAR(40) NOT NULL,
+    Status NVARCHAR(40) NOT NULL DEFAULT 'Pending',
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_DemoBookings_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+CREATE TABLE ChatSessions (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SessionId NVARCHAR(80) NOT NULL UNIQUE,
+    Stage NVARCHAR(50) NOT NULL,
+    Name NVARCHAR(120) NULL,
+    Phone NVARCHAR(20) NULL,
+    Email NVARCHAR(150) NULL,
+    Location NVARCHAR(120) NULL,
+    Domain NVARCHAR(120) NULL,
+    LeadCaptured BIT NOT NULL DEFAULT 0,
+    Source NVARCHAR(50) NOT NULL DEFAULT 'Website',
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE TABLE ChatMessages (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    ChatSessionId INT NOT NULL,
+    Sender NVARCHAR(20) NOT NULL,
+    Content NVARCHAR(2000) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_ChatMessages_ChatSessions FOREIGN KEY (ChatSessionId) REFERENCES ChatSessions(Id) ON DELETE CASCADE
+);
+CREATE TABLE AppUsers (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(120) NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(250) NOT NULL,
+    Role NVARCHAR(20) NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1,
+    FailedLoginAttempts INT NOT NULL DEFAULT 0,
+    LockoutEndUtc DATETIME2 NULL,
+    LastLoginAtUtc DATETIME2 NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE TABLE EmailAutomationLogs (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    TemplateKey NVARCHAR(100) NOT NULL,
+    Subject NVARCHAR(200) NOT NULL,
+    Status NVARCHAR(40) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_EmailAutomationLogs_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+CREATE TABLE WhatsAppMessageLogs (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    MessageType NVARCHAR(100) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    Status NVARCHAR(40) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_WhatsAppMessageLogs_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE LeadActivityLogs (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    ActivityType NVARCHAR(60) NOT NULL,
+    Message NVARCHAR(500) NOT NULL,
+    Status NVARCHAR(30) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_LeadActivityLogs_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+CREATE INDEX IX_LeadActivityLogs_LeadId ON LeadActivityLogs(LeadId);
+
+CREATE TABLE FunnelEvents (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    Stage NVARCHAR(20) NOT NULL,
+    Timestamp DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_FunnelEvents_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+CREATE INDEX IX_FunnelEvents_LeadId ON FunnelEvents(LeadId);
+CREATE INDEX IX_FunnelEvents_Stage ON FunnelEvents(Stage);
+
+CREATE TABLE LeadFollowUpJobs (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    LeadId INT NOT NULL,
+    FollowUpType NVARCHAR(30) NOT NULL,
+    DueAt DATETIME2 NOT NULL,
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
+    AttemptCount INT NOT NULL DEFAULT 0,
+    ProcessedAt DATETIME2 NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_LeadFollowUpJobs_Leads FOREIGN KEY (LeadId) REFERENCES Leads(Id) ON DELETE CASCADE
+);
+CREATE INDEX IX_LeadFollowUpJobs_DueAt ON LeadFollowUpJobs(DueAt);
+CREATE INDEX IX_LeadFollowUpJobs_Status_DueAt ON LeadFollowUpJobs(Status, DueAt);
+GO
+INSERT INTO AppUsers (FullName, Email, PasswordHash, Role)
+VALUES
+('COEPD Admin', 'admin@coepd.local', '$2a$11$2anHEicZ8qb98wPmbP7mO.uh2pXkDAehK7s3MB9HF3M8z62WvW/3i', 'Admin'),
+('COEPD Staff', 'staff@coepd.local', '$2a$11$DAv6d7SQy3xnXc9hXQ1yhe7jVw7YFvdn0igip9aA9jaQj22xPS0OO', 'Staff');

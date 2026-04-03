@@ -1,0 +1,149 @@
+@model List<COEPD.SalesFunnelSystem.Application.DTOs.LeadResponse>
+@{
+    var filter = ViewBag.Filter as COEPD.SalesFunnelSystem.Application.DTOs.LeadFilterRequest ?? new();
+    var domains = ViewBag.Domains as List<string> ?? new();
+}
+
+<div class="page-header">
+    <div>
+        <h1>Lead Management</h1>
+        <p class="text-subtle">Manage every prospect in the system. Filter by domain and date, update status instantly, and track progress.</p>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="window.print()"><i class="ph ph-file-pdf"></i> Export Data</button>
+    </div>
+</div>
+
+<div class="glass-card filter-card">
+    <form method="get" class="dashboard-filter-form">
+        <div class="filter-group">
+            <label>Keyword Search</label>
+            <input type="text" name="search" value="@filter.Search" placeholder="Name, phone, or email..." />
+        </div>
+        <div class="filter-group">
+            <label>Domain</label>
+            <select name="domain">
+                <option value="">All Domains</option>
+                @foreach (var domain in domains)
+                {
+                    <option value="@domain" selected="@(filter.Domain == domain ? "selected" : null)">@domain</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Date Threshold</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="date" name="fromDate" value="@filter.FromDate?.ToString("yyyy-MM-dd")" />
+                <input type="date" name="toDate" value="@filter.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">Filter Results</button>
+            <a href="/admin/leads" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h3>Active Lead Database</h3>
+        <div class="table-actions">
+            <span class="text-subtle">Showing @Model.Count leads</span>
+        </div>
+    </div>
+    <div style="overflow-x: auto;">
+        <table class="crm-table">
+            <thead>
+                <tr>
+                    <th>Lead Name</th>
+                    <th>Contact Info</th>
+                    <th>Location</th>
+                    <th>Domain</th>
+                    <th>Status</th>
+                    <th>Joined On</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var lead in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="lead-name-cell">
+                            <div class="lead-avatar">@lead.Name.Substring(0, 1)</div>
+                            <div>
+                                <div class="lead-name">@lead.Name</div>
+                                <div class="text-subtle" style="font-size: 0.75rem;">ID: #@lead.Id</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="lead-name" style="font-size: 0.875rem;">@lead.Phone</div>
+                        <div class="text-subtle" style="font-size: 0.75rem;">@lead.Email</div>
+                    </td>
+                    <td><span class="text-subtle">@lead.Location</span></td>
+                    <td><span class="pill pill-domain">@lead.Domain</span></td>
+                    <td>
+                        <select class="pipeline-status-select table-status-select" data-id="@lead.Id">
+                            <option value="New" selected="@(lead.Status == "New" ? "selected" : null)">New</option>
+                            <option value="Contacted" selected="@(lead.Status == "Contacted" ? "selected" : null)">Contacted</option>
+                            <option value="DemoBooked" selected="@(lead.Status == "DemoBooked" ? "selected" : null)">Demo</option>
+                            <option value="Converted" selected="@(lead.Status == "Converted" ? "selected" : null)">Converted</option>
+                        </select>
+                    </td>
+                    <td><span class="text-subtle">@lead.CreatedAt.ToString("MMM dd, yyyy")</span></td>
+                    <td class="text-right">
+                        <div class="flex gap-2" style="justify-content: flex-end;">
+                            <button class="btn-icon delete-lead-btn" data-id="@lead.Id" title="Remove"><i class="ph ph-trash" style="color: var(--danger);"></i></button>
+                            <button class="btn-icon" title="View Details"><i class="ph ph-eye"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer" style="padding: 1.5rem 2rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <span class="text-subtle" style="font-size: 0.875rem;">Page 1 of 1</span>
+        <div class="flex gap-2">
+            <button class="btn btn-secondary btn-small" disabled>Previous</button>
+            <button class="btn btn-secondary btn-small" disabled>Next</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll(".table-status-select").forEach(select => {
+        select.addEventListener("change", async () => {
+            const id = select.dataset.id;
+            const status = select.value;
+            const token = "@ViewBag.ApiToken";
+            
+            if (!token) return alert("Auth error");
+
+            try {
+                select.disabled = true;
+                const response = await fetch(`/api/leads/${id}/status`, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (!response.ok) throw new Error("Update failed");
+                
+                // Visual feedback
+                select.classList.add("success-pulse");
+                setTimeout(() => select.classList.remove("success-pulse"), 1000);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                select.disabled = false;
+            }
+        });
+    });
+</script>
+}

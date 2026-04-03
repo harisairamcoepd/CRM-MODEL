@@ -1,0 +1,39 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COEPD.SalesFunnelSystem.Domain", "src\\COEPD.SalesFunnelSystem.Domain\\COEPD.SalesFunnelSystem.Domain.csproj", "{23D4C4D6-B230-4E69-B62E-7CDA3C712101}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COEPD.SalesFunnelSystem.Application", "src\\COEPD.SalesFunnelSystem.Application\\COEPD.SalesFunnelSystem.Application.csproj", "{E7F95173-EA0D-4F93-B241-6CBCC0D5A123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COEPD.SalesFunnelSystem.Infrastructure", "src\\COEPD.SalesFunnelSystem.Infrastructure\\COEPD.SalesFunnelSystem.Infrastructure.csproj", "{78EC1818-746D-4E17-83E2-13E84D682365}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COEPD.SalesFunnelSystem.Web", "src\\COEPD.SalesFunnelSystem.Web\\COEPD.SalesFunnelSystem.Web.csproj", "{8B9C2C86-078B-42FF-B656-0B7252C29DA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23D4C4D6-B230-4E69-B62E-7CDA3C712101}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D4C4D6-B230-4E69-B62E-7CDA3C712101}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D4C4D6-B230-4E69-B62E-7CDA3C712101}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D4C4D6-B230-4E69-B62E-7CDA3C712101}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F95173-EA0D-4F93-B241-6CBCC0D5A123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F95173-EA0D-4F93-B241-6CBCC0D5A123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F95173-EA0D-4F93-B241-6CBCC0D5A123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F95173-EA0D-4F93-B241-6CBCC0D5A123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78EC1818-746D-4E17-83E2-13E84D682365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78EC1818-746D-4E17-83E2-13E84D682365}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78EC1818-746D-4E17-83E2-13E84D682365}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78EC1818-746D-4E17-83E2-13E84D682365}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B9C2C86-078B-42FF-B656-0B7252C29DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B9C2C86-078B-42FF-B656-0B7252C29DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B9C2C86-078B-42FF-B656-0B7252C29DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B9C2C86-078B-42FF-B656-0B7252C29DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

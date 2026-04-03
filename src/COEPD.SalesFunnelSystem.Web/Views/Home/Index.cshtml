@@ -1,0 +1,337 @@
+@{
+    var domains = ViewBag.Domains as string[] ?? Array.Empty<string>();
+}
+
+<!-- ====== HERO ====== -->
+<section class="hero-premium">
+    <div class="hero-bg-layer">
+        <div class="hero-gradient-orb hero-orb-1"></div>
+        <div class="hero-gradient-orb hero-orb-2"></div>
+        <div class="hero-gradient-orb hero-orb-3"></div>
+        <canvas id="hero-particles" class="hero-particles"></canvas>
+        <div class="hero-grid-lines"></div>
+    </div>
+    <div class="hero-inner">
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>AI-powered admissions growth engine</span>
+            </div>
+            <h1 class="hero-headline">
+                Turn every enquiry into a
+                <span class="gradient-text">qualified conversation</span>,
+                demo, and enrollment-ready lead.
+            </h1>
+            <p class="hero-lead">COEPD Funnel OS combines lead capture, demo scheduling, counselor visibility, and automation in one polished admissions workflow.</p>
+            <div class="hero-cta-group">
+                <a href="#lead-form" class="btn btn-primary btn-glow">
+                    <span>Talk to Advisor</span>
+                    <i class="fas fa-arrow-right btn-icon-animated"></i>
+                </a>
+                <a href="#demo-booking" class="btn btn-glass">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Book Free Demo</span>
+                </a>
+            </div>
+            <div class="hero-trust-strip">
+                <div class="trust-logos">
+                    <div class="trust-avatars">
+                        <span class="trust-avatar" style="background:#2563EB">A</span>
+                        <span class="trust-avatar" style="background:#7C3AED">R</span>
+                        <span class="trust-avatar" style="background:#06B6D4">S</span>
+                        <span class="trust-avatar" style="background:#10B981">M</span>
+                        <span class="trust-avatar trust-avatar-count">+2.7k</span>
+                    </div>
+                    <span class="trust-label"><strong>2,700+</strong> hiring partners trust COEPD</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-badges">
+                    <div class="trust-badge"><i class="fas fa-shield-halved"></i> SOC2 Compliant</div>
+                    <div class="trust-badge"><i class="fas fa-bolt"></i> 99.9% Uptime</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-floating-cards">
+                <div class="floating-card fc-stats" data-depth="1.5">
+                    <div class="fc-icon fc-icon-blue"><i class="fas fa-users"></i></div>
+                    <div class="fc-body">
+                        <span class="fc-value" data-count="1284">0</span>
+                        <span class="fc-label">Active Leads</span>
+                    </div>
+                    <span class="fc-badge fc-badge-up"><i class="fas fa-arrow-up"></i> 23%</span>
+                </div>
+                <div class="floating-card fc-demo" data-depth="2">
+                    <div class="fc-icon fc-icon-violet"><i class="fas fa-calendar-check"></i></div>
+                    <div class="fc-body">
+                        <span class="fc-value" data-count="342">0</span>
+                        <span class="fc-label">Demos Booked</span>
+                    </div>
+                    <span class="fc-badge fc-badge-up"><i class="fas fa-arrow-up"></i> 18%</span>
+                </div>
+                <div class="floating-card fc-conversion" data-depth="1">
+                    <div class="fc-icon fc-icon-emerald"><i class="fas fa-chart-line"></i></div>
+                    <div class="fc-body">
+                        <span class="fc-value fc-value-pct" data-count="67">0</span>
+                        <span class="fc-label">Conversion Rate</span>
+                    </div>
+                    <div class="fc-mini-chart">
+                        <svg viewBox="0 0 80 24" fill="none"><path d="M0 20 Q10 18 16 14 T32 10 T48 8 T64 4 T80 2" stroke="url(#chartGrad)" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="chartGrad" x1="0" y1="0" x2="80" y2="0"><stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs></svg>
+                    </div>
+                </div>
+                <div class="floating-card fc-notification" data-depth="2.5">
+                    <div class="fc-notif-dot"></div>
+                    <i class="fas fa-bell"></i>
+                    <span>New lead from <strong>Bengaluru</strong></span>
+                    <small>Just now</small>
+                </div>
+            </div>
+            <aside class="hero-panel glass-card stats-card">
+                <div class="hero-panel-header">
+                    <div>
+                        <span class="mini-kicker">Career consultation</span>
+                        <h3>Start your guided admission journey</h3>
+                    </div>
+                    <div class="hero-panel-badge"><span class="live-dot"></span> Live in CRM</div>
+                </div>
+                <form id="lead-form" class="stack-form">
+                    <div class="input-grid">
+                        <div class="input-glow-wrap">
+                            <input type="text" name="name" placeholder="Full name" required />
+                        </div>
+                        <div class="input-glow-wrap">
+                            <input type="tel" name="phone" placeholder="Phone number" required />
+                        </div>
+                    </div>
+                    <div class="input-grid">
+                        <div class="input-glow-wrap">
+                            <input type="email" name="email" placeholder="Email address" required />
+                        </div>
+                        <div class="input-glow-wrap">
+                            <input type="text" name="location" placeholder="Location" required />
+                        </div>
+                    </div>
+                    <div class="input-glow-wrap">
+                        <select name="domain" required>
+                            <option value="">Choose domain</option>
+                            @foreach (var domain in domains)
+                            {
+                                <option value="@domain">@domain</option>
+                            }
+                        </select>
+                    </div>
+                    <input type="hidden" name="source" value="Website" />
+                    <button type="submit" class="btn btn-primary btn-glow full">
+                        <span>Get Program Guidance</span>
+                        <i class="fas fa-arrow-right btn-icon-animated"></i>
+                    </button>
+                    <p class="form-caption"><i class="fas fa-lock" style="margin-right:4px;opacity:0.5"></i> Your details land directly in the CRM — instant counselor follow-up.</p>
+                    <p id="lead-form-status" class="status-text"></p>
+                </form>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<section class="section domain-section">
+    <div class="section-heading">
+        <span class="eyebrow">Career domains</span>
+        <h2>Industry-ready tracks mapped to real hiring outcomes.</h2>
+        <p>Offer a broad course catalogue without losing funnel clarity. Every enquiry is captured in one system with domain-level visibility.</p>
+    </div>
+
+    <!-- UPGRADED DOMAIN UI -->
+    <div class="domain-controls">
+        <div class="domain-search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="domain-search" placeholder="Search track (e.g. Banking, Supply Chain)..." />
+        </div>
+        <div class="domain-filters">
+            <button class="filter-btn active" data-filter="all">All Tracks</button>
+            <button class="filter-btn" data-filter="BA">BA</button>
+            <button class="filter-btn" data-filter="Analytics">Analytics</button>
+            <button class="filter-btn" data-filter="Tech">Tech</button>
+            <button class="filter-btn" data-filter="Management">Management</button>
+        </div>
+    </div>
+
+    <div class="domain-grid" id="domain-card-grid">
+        @foreach (var domain in domains)
+        {
+            var category = domain.Contains("Analyst") ? "BA" :
+                           domain.Contains("Data") || domain.Contains("Analytics") ? "Analytics" :
+                           domain.Contains("Scrum") || domain.Contains("QA") ? "Tech" : "Management";
+
+            var icon = domain.Contains("Banking") ? "fa-university" :
+                       domain.Contains("Healthcare") ? "fa-heartbeat" :
+                       domain.Contains("Retail") ? "fa-shopping-cart" :
+                       domain.Contains("Finance") ? "fa-coins" :
+                       domain.Contains("Telecom") ? "fa-signal" : "fa-graduation-cap";
+
+            <div class="domain-card" data-category="@category" data-name="@domain.ToLower()">
+                <div class="domain-card-icon">
+                    <i class="fas @icon"></i>
+                </div>
+                <h4>@domain</h4>
+                <span class="domain-card-tag">@category</span>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="section section-contrast">
+    <div class="section-heading">
+        <span class="eyebrow">Placement engine</span>
+        <h2>Built to move curiosity toward confident action.</h2>
+    </div>
+    <div class="story-grid">
+        <article class="story-card glass-card">
+            <span class="story-step">01</span>
+            <h3>Capture</h3>
+            <p>Collect lead intent, location, and domain preference in a branded flow that feels premium from the first interaction.</p>
+        </article>
+        <article class="story-card glass-card">
+            <span class="story-step">02</span>
+            <h3>Qualify</h3>
+            <p>Move every enquiry into a structured admissions pipeline with counselor visibility, AI chat support, and reliable lead IDs.</p>
+        </article>
+        <article class="story-card glass-card">
+            <span class="story-step">03</span>
+            <h3>Convert</h3>
+            <p>Guide prospects into demo booking, reminders, and follow-up journeys that turn interest into enrollment-ready momentum.</p>
+        </article>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-heading">
+        <span class="eyebrow">Success stories</span>
+        <h2>Learner outcomes that build trust before the first call.</h2>
+    </div>
+    <div class="testimonial-grid">
+        <article class="glass-card testimonial-card"><p>"The BA course and mock interviews helped me break into a new role confidently."</p><strong>Anusha, Hyderabad</strong></article>
+        <article class="glass-card testimonial-card"><p>"The structure felt serious and placement support made the transition more realistic."</p><strong>Rahul, Pune</strong></article>
+        <article class="glass-card testimonial-card"><p>"Weekend learning plus mentor guidance fit perfectly with my work schedule."</p><strong>Sneha, Bengaluru</strong></article>
+    </div>
+</section>
+
+<section class="section section-contrast">
+    <div class="glass-card cta-strip">
+        <div>
+            <span class="mini-kicker">Start Your Journey</span>
+            <h3>Ready to accelerate your career transition with guided mentorship?</h3>
+            <p>Connect with our advisors to map your roadmap, explore role-aligned tracks, and reserve a live interactive demo.</p>
+        </div>
+        <div class="cta-strip-actions">
+            <a href="#demo-booking" class="btn btn-primary">Book Demo</a>
+            <a href="#lead-form" class="btn btn-secondary">Talk to Advisor</a>
+        </div>
+    </div>
+</section>
+
+<section id="demo-booking" class="section demo-section">
+    <div class="demo-section-bg"></div>
+    <div class="demo-content">
+        <div class="cta-copy">
+            <span class="eyebrow"><i class="fas fa-rocket"></i> Ready to act?</span>
+            <h2>Book a free demo and connect with a COEPD advisor.</h2>
+            <p>Lead IDs are auto-filled after the first submission, so demo booking becomes the natural next step in the funnel.</p>
+            <div class="cta-points">
+                <span><i class="fas fa-check-circle"></i> Structured slots</span>
+                <span><i class="fas fa-check-circle"></i> Instant CRM update</span>
+                <span><i class="fas fa-check-circle"></i> Reminder-ready workflow</span>
+            </div>
+        </div>
+        <div class="demo-form-card">
+            <div class="demo-steps-indicator">
+                <div class="demo-step active" data-step="1">
+                    <span class="demo-step-num">1</span>
+                    <span class="demo-step-label">Your Info</span>
+                </div>
+                <div class="demo-step-line"></div>
+                <div class="demo-step" data-step="2">
+                    <span class="demo-step-num">2</span>
+                    <span class="demo-step-label">Schedule</span>
+                </div>
+            </div>
+            <form id="demo-form" class="demo-form">
+                <div class="demo-form-step demo-form-step--active" data-step="1">
+                    <div class="demo-input-group">
+                        <label for="demo-leadId">Lead ID</label>
+                        <div class="demo-input-wrap">
+                            <i class="fas fa-id-badge"></i>
+                            <input id="demo-leadId" type="number" name="leadId" placeholder="Enter your Lead ID" required />
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-demo-next">Continue <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="demo-form-step" data-step="2">
+                    <div class="demo-input-group">
+                        <label for="demo-day">Preferred Day</label>
+                        <div class="demo-input-wrap">
+                            <i class="fas fa-calendar-alt"></i>
+                            <select id="demo-day" name="day" required>
+                                <option value="">Select day</option>
+                                <option value="Weekday">Weekday</option>
+                                <option value="Weekend">Weekend</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="demo-input-group">
+                        <label for="demo-slot">Time Slot</label>
+                        <div class="demo-input-wrap">
+                            <i class="fas fa-clock"></i>
+                            <select id="demo-slot" name="slot" required>
+                                <option value="">Select slot</option>
+                                <option value="Morning">Morning (10 AM)</option>
+                                <option value="Evening">Evening (6 PM)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="demo-form-actions">
+                        <button type="button" class="btn btn-demo-back"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="submit" class="btn btn-demo-submit">
+                            <i class="fas fa-calendar-check"></i> Confirm Demo
+                        </button>
+                    </div>
+                </div>
+                <p id="demo-form-status" class="status-text"></p>
+            </form>
+            <div class="demo-trust">
+                <i class="fas fa-shield-alt"></i>
+                <span>100% free &middot; No credit card &middot; Instant confirmation</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="chatbot-widget" class="chatbot">
+    <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open chat">
+        <svg class="chatbot-toggle-icon chatbot-icon-chat" width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.373 2 2 6.925 2 13c0 3.17 1.458 6.025 3.8 8.025L4.5 25.5l5.2-2.6C11.1 23.6 12.5 24 14 24c6.627 0 12-4.925 12-11S20.627 2 14 2z" fill="#fff"/></svg>
+        <svg class="chatbot-toggle-icon chatbot-icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
+    <div id="chatbot-panel" class="chatbot-panel chatbot-panel--closed">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <div class="chatbot-avatar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 015 5v1a5 5 0 01-10 0V7a5 5 0 015-5zm-7 18a7 7 0 0114 0H5z" fill="#fff"/></svg>
+                </div>
+                <div>
+                    <strong>COEPD Advisor</strong>
+                    <span class="chatbot-status"><span class="chatbot-status-dot"></span>Online</span>
+                </div>
+            </div>
+            <button id="chatbot-close" class="chatbot-close" aria-label="Close chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div id="chatbot-quick-replies" class="chatbot-quick-replies"></div>
+        <form id="chatbot-form" class="chatbot-form">
+            <input id="chatbot-input" type="text" placeholder="Type a message..." autocomplete="off" />
+            <button type="submit" aria-label="Send message">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </form>
+    </div>
+</div>

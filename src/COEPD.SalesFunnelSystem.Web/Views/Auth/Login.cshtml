@@ -1,0 +1,91 @@
+@{
+    Layout = "_AuthLayout";
+}
+@model COEPD.SalesFunnelSystem.Application.DTOs.LoginRequest
+
+<section class="auth-shell">
+    <div class="auth-card">
+        <div class="auth-logo-box">
+            <img src="/logo.png" alt="COEPD" class="auth-logo">
+        </div>
+        
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Access your CRM command center</p>
+        </div>
+
+        <div class="role-selector-container">
+            <div class="role-selector" id="roleSelector">
+                <div class="role-slider"></div>
+                <div class="role-option active" data-role="Staff" data-index="0">
+                    <i class="ph-bold ph-identification-badge"></i>
+                    <span>Staff</span>
+                </div>
+                <div class="role-option" data-role="Admin" data-index="1">
+                    <i class="ph-bold ph-shield-check"></i>
+                    <span>Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="stack-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@(ViewData["ReturnUrl"])" />
+            
+            <div class="form-group">
+                <label asp-for="Email">Email Address</label>
+                <div class="input-container">
+                    <i class="ph ph-envelope-simple"></i>
+                    <input asp-for="Email" type="email" placeholder="name@coepd.com" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Password</label>
+                <div class="input-container">
+                    <i class="ph ph-lock-key"></i>
+                    <input asp-for="Password" type="password" placeholder="********" required />
+                </div>
+            </div>
+
+            <div class="form-utils">
+                <label class="remember-me">
+                    <input asp-for="RememberMe" type="checkbox">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-auth">
+                <span>Sign In to CRM</span>
+                <i class="ph-bold ph-arrow-right"></i>
+            </button>
+            
+            <div asp-validation-summary="All" class="status-text error"></div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Need system access? <a href="#">Contact Support</a></p>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const roleOptions = document.querySelectorAll('.role-option');
+        const slider = document.querySelector('.role-slider');
+        
+        roleOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                roleOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                
+                // Move the sliding background
+                const index = opt.getAttribute('data-index');
+                slider.style.transform = `translateX(${index * 100}%)`;
+                
+                // Optional: Update hints or role labels if needed
+            });
+        });
+    });
+</script>

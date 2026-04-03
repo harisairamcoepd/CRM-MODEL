@@ -1,0 +1,269 @@
+@model List<COEPD.SalesFunnelSystem.Application.DTOs.LeadResponse>
+@{
+    var stats = ViewBag.Stats as COEPD.SalesFunnelSystem.Application.DTOs.DashboardStatsResponse;
+    var growth = ViewBag.Growth as List<COEPD.SalesFunnelSystem.Application.DTOs.LeadGrowthPoint> ?? new();
+    var funnel = ViewBag.Funnel as COEPD.SalesFunnelSystem.Application.DTOs.FunnelAnalyticsResponse ?? new();
+    var filter = ViewBag.Filter as COEPD.SalesFunnelSystem.Application.DTOs.LeadFilterRequest ?? new();
+    var domains = ViewBag.Domains as List<string> ?? new();
+    var conversionRate = (stats is not null && stats.TotalLeads > 0)
+        ? Math.Round((decimal)stats.ConversionCount / stats.TotalLeads * 100m, 2)
+        : 0;
+    var demoBookedCount = Model.Count(x => string.Equals(x.Status, "DemoBooked", StringComparison.OrdinalIgnoreCase));
+    var topDomain = Model.GroupBy(x => x.Domain).OrderByDescending(x => x.Count()).FirstOrDefault()?.Key ?? "No data";
+}
+
+<section class="crm-shell">
+    <div class="crm-hero">
+        <div>
+            <span class="crm-kicker">Admin Workspace</span>
+            <h1>Revenue-ready lead operations</h1>
+            <p class="text-subtle">A HubSpot-style overview of acquisition, funnel movement, and lead readiness across every domain.</p>
+        </div>
+        <div class="crm-hero-actions">
+            <a href="/admin/leads" class="btn btn-secondary"><i class="ph ph-users-three"></i> Open Lead Desk</a>
+            <button class="btn btn-primary" onclick="window.print()"><i class="ph ph-download-simple"></i> Export Snapshot</button>
+        </div>
+    </div>
+
+    <div class="crm-scoreboard">
+        <article class="crm-score-card crm-score-card-primary">
+            <div class="crm-score-head">
+                <span>Pipeline Value</span>
+                <i class="ph ph-chart-pie-slice"></i>
+            </div>
+            <strong data-stat="totalLeads">@stats?.TotalLeads</strong>
+            <p>Total leads across the active CRM pipeline.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>Today</span>
+                <i class="ph ph-lightning"></i>
+            </div>
+            <strong data-stat="todayLeads">@stats?.TodayLeads</strong>
+            <p>Fresh leads captured in the last 24 hours.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>Conversion Rate</span>
+                <i class="ph ph-target"></i>
+            </div>
+            <strong>@conversionRate%</strong>
+            <p>@stats?.ConversionCount converted leads from the total pool.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>Demo Queue</span>
+                <i class="ph ph-presentation-chart"></i>
+            </div>
+            <strong>@demoBookedCount</strong>
+            <p>Qualified leads waiting for demo progression.</p>
+        </article>
+    </div>
+
+    <div class="crm-grid">
+        <section class="glass-card crm-panel crm-panel-wide">
+            <div class="crm-panel-head">
+                <div>
+                    <span class="crm-panel-label">Filters</span>
+                    <h2>Lead overview</h2>
+                </div>
+                <div class="crm-head-meta">
+                    <span class="crm-chip"><i class="ph ph-funnel"></i> Funnel tracking active</span>
+                    <span class="crm-chip"><i class="ph ph-shield-check"></i> Admin only</span>
+                </div>
+            </div>
+
+            <form method="get" class="dashboard-filter-form crm-filter-form">
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" name="fromDate" value="@filter.FromDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" name="toDate" value="@filter.ToDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="filter-group">
+                    <label>Domain</label>
+                    <select name="domain">
+                        <option value="">All Domains</option>
+                        @foreach (var domain in domains)
+                        {
+                            <option value="@domain" selected="@(filter.Domain == domain ? "selected" : null)">@domain</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" name="search" value="@filter.Search" placeholder="Search name, phone, email..." />
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="/admin" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+
+            <div class="crm-filter-summary">
+                <div>
+                    <span class="crm-summary-label">Visible Leads</span>
+                    <strong>@Model.Count</strong>
+                </div>
+                <div>
+                    <span class="crm-summary-label">Top Domain</span>
+                    <strong>@topDomain</strong>
+                </div>
+                <div>
+                    <span class="crm-summary-label">This Month</span>
+                    <strong data-stat="thisMonthLeads">@stats?.ThisMonthLeads</strong>
+                </div>
+                <div>
+                    <span class="crm-summary-label">Bookings</span>
+                    <strong data-stat="totalBookings">@stats?.TotalBookings</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card crm-panel">
+            <div class="crm-panel-head">
+                <div>
+                    <span class="crm-panel-label">Performance</span>
+                    <h2>Lead momentum</h2>
+                </div>
+                <span class="crm-mini-note" data-stat="weeklyGrowth"><i class="ph ph-trend-up"></i> @Math.Abs(stats?.WeeklyGrowthPercentage ?? 0)% vs last week</span>
+            </div>
+            <div class="chart-content">
+                <canvas id="leadGrowthChart"></canvas>
+            </div>
+        </section>
+
+        <section class="glass-card crm-panel">
+            <div class="crm-panel-head">
+                <div>
+                    <span class="crm-panel-label">Acquisition</span>
+                    <h2>Lead sources</h2>
+                </div>
+                <span class="crm-mini-note"><span data-stat="activeSources">@(stats?.SourceBreakdown.Count ?? 0)</span> active sources</span>
+            </div>
+            <div class="chart-content chart-content-centered">
+                <canvas id="sourceChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <section class="glass-card crm-panel crm-funnel-panel">
+        <div class="crm-panel-head">
+            <div>
+                <span class="crm-panel-label">Funnel Tracking</span>
+                <h2>Lead progression</h2>
+            </div>
+            <span class="crm-chip"><i class="ph ph-chart-line-up"></i> Overall conversion @funnel.OverallConversionRate%</span>
+        </div>
+
+        <div class="crm-funnel-grid">
+            <article class="crm-funnel-card">
+                <div class="crm-funnel-card-top">
+                    <span>Awareness</span>
+                    <strong>@funnel.StageCounts.Awareness</strong>
+                </div>
+                <div class="funnel-bar"><span style="width: 100%"></span></div>
+                <p>Initial traffic and campaign reach entering the top of funnel.</p>
+            </article>
+            <article class="crm-funnel-card">
+                <div class="crm-funnel-card-top">
+                    <span>Interest</span>
+                    <strong>@funnel.StageCounts.Interest</strong>
+                </div>
+                <div class="funnel-bar"><span style="width: @Math.Min(funnel.AwarenessToInterestRate, 100)%"></span></div>
+                <p>@funnel.AwarenessToInterestRate% of awareness is converting into qualified interest.</p>
+            </article>
+            <article class="crm-funnel-card">
+                <div class="crm-funnel-card-top">
+                    <span>Desire</span>
+                    <strong>@funnel.StageCounts.Desire</strong>
+                </div>
+                <div class="funnel-bar"><span style="width: @Math.Min(funnel.InterestToDesireRate, 100)%"></span></div>
+                <p>@funnel.InterestToDesireRate% of interested leads are moving toward demos.</p>
+            </article>
+            <article class="crm-funnel-card">
+                <div class="crm-funnel-card-top">
+                    <span>Action</span>
+                    <strong>@funnel.StageCounts.Action</strong>
+                </div>
+                <div class="funnel-bar"><span style="width: @Math.Min(funnel.DesireToActionRate, 100)%"></span></div>
+                <p>@funnel.DesireToActionRate% of desire-stage leads become actions and bookings.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="table-card crm-leads-panel">
+        <div class="table-header crm-table-head">
+            <div>
+                <span class="crm-panel-label">Lead Table</span>
+                <h3>Sales-ready lead list</h3>
+            </div>
+            <div class="crm-head-meta">
+                <span class="crm-chip">@Model.Count records</span>
+                <a href="/admin/leads" class="btn btn-secondary btn-small">Open Full Management</a>
+            </div>
+        </div>
+        <div class="crm-table-wrap">
+            <table class="crm-table">
+                <thead>
+                    <tr>
+                        <th>Lead</th>
+                        <th>Contact</th>
+                        <th>Domain</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var lead in Model)
+                {
+                    var statusClass = lead.Status?.ToLowerInvariant() switch
+                    {
+                        "demobooked" => "pill-stage-demobooked",
+                        "contacted" => "pill-stage-contacted",
+                        "converted" => "pill-stage-enrolled",
+                        _ => "pill-stage-new"
+                    };
+
+                    <tr>
+                        <td>
+                            <div class="lead-name-cell">
+                                <div class="lead-avatar">@lead.Name.Substring(0, 1)</div>
+                                <div>
+                                    <div class="lead-name">@lead.Name</div>
+                                    <div class="text-subtle">@lead.Location</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="lead-name" style="font-size: 0.875rem;">@lead.Phone</div>
+                            <div class="text-subtle" style="font-size: 0.75rem;">@lead.Email</div>
+                        </td>
+                        <td><span class="pill pill-domain">@lead.Domain</span></td>
+                        <td><span class="pill @statusClass">@lead.Status</span></td>
+                        <td><span class="text-subtle">@lead.CreatedAt.ToString("MMM dd, yyyy")</span></td>
+                        <td class="text-right">
+                            <a href="/admin/leads" class="btn-icon" title="Open lead management"><i class="ph ph-arrow-square-out"></i></a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+@section Scripts {
+<script>
+window.dashboardData = {
+    growth: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(growth)),
+    source: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(stats?.SourceBreakdown ?? new Dictionary<string, int>()))
+};
+</script>
+}

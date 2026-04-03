@@ -1,0 +1,102 @@
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COEPD AI Sales Funnel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    @if (ViewBag.ApiToken != null)
+    {
+        <meta name="access-token" content="@ViewBag.ApiToken" />
+    }
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons for premium UI look -->
+    <script src="https://unpkg.com/@@phosphor-icons/web"></script>
+</head>
+<body class="@(User.Identity?.IsAuthenticated == true ? "app-body" : "public-body")">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "Staff";
+        var name = User.Identity?.Name ?? "User";
+        
+        <div class="app-layout">
+            <aside class="app-sidebar">
+                <div class="sidebar-brand">
+                    <img src="/logo.png" alt="COEPD" style="height: 32px; filter: brightness(0) invert(1);" />
+                    <span>CRM OS</span>
+                </div>
+                <nav class="sidebar-nav">
+                    @if (role == "Admin")
+                    {
+                        <a href="/admin/dashboard" class="@((Context.Request.Path.Value?.Contains("/admin/dashboard", StringComparison.OrdinalIgnoreCase) == true || Context.Request.Path.Value == "/admin") ? "active" : "")"><i class="ph ph-squares-four"></i> Dashboard</a>
+                        <a href="/admin/leads" class="@(Context.Request.Path.StartsWithSegments("/admin/leads") ? "active" : "")"><i class="ph ph-users"></i> Leads</a>
+                        <a href="/Staff" class="@(Context.Request.Path.StartsWithSegments("/Staff") ? "active" : "")"><i class="ph ph-layout"></i> Pipeline</a>
+                        <a href="#"><i class="ph ph-chart-line"></i> Analytics</a>
+                        <a href="#"><i class="ph ph-robot"></i> Automations</a>
+                    }
+                    else
+                    {
+                        <a href="/Staff" class="active"><i class="ph ph-list-dashes"></i> Lead Queue</a>
+                    }
+                </nav>
+                <div class="sidebar-footer">
+                    <a href="#"><i class="ph ph-gear"></i> Settings</a>
+                    <a href="#"><i class="ph ph-question"></i> Help</a>
+                </div>
+            </aside>
+            <div class="app-main-wrapper">
+                <header class="app-header">
+                    <div class="header-search">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" placeholder="Search leads, contact, domain..." />
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" title="Notifications"><i class="ph ph-bell"></i><span class="badge"></span></button>
+                        <div class="user-profile">
+                            <div class="avatar">@name.Substring(0, 1)</div>
+                            <div class="user-info">
+                                <span class="user-name">@name</span>
+                                <span class="user-role">@role</span>
+                            </div>
+                        </div>
+                        <form method="post" asp-controller="Auth" asp-action="Logout" style="margin: 0;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-icon" title="Sign Out"><i class="ph ph-sign-out"></i></button>
+                        </form>
+                    </div>
+                </header>
+                <main class="app-main">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    }
+    else
+    {
+        <header class="topbar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">C</span>
+                <span class="brand-copy">
+                    <strong>COEPD Funnel OS</strong>
+                    <small>Admissions command center</small>
+                </span>
+            </a>
+            <nav class="nav">
+                <a asp-controller="Home" asp-action="Index">Home</a>
+                <a asp-controller="Auth" asp-action="Login">Login</a>
+            </nav>
+        </header>
+        <main class="public-main">
+            @RenderBody()
+        </main>
+    }
+
+    <script src="~/js/site.js"></script>
+    <script src="~/js/chatbot.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

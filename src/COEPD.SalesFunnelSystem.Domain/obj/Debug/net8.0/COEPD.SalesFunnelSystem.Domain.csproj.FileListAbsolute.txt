@@ -1,0 +1,11 @@
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.deps.json
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.AssemblyInfoInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.AssemblyInfo.cs
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.csproj.CoreCompileInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\refint\COEPD.SalesFunnelSystem.Domain.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Domain\obj\Debug\net8.0\ref\COEPD.SalesFunnelSystem.Domain.dll

@@ -1,0 +1,17 @@
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.AssemblyInfo.cs
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.deps.json
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Application.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Application.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.Sa.C58B68B7.Up2Date
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\refint\COEPD.SalesFunnelSystem.Infrastructure.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Infrastructure.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Infrastructure\obj\Debug\net8.0\ref\COEPD.SalesFunnelSystem.Infrastructure.dll

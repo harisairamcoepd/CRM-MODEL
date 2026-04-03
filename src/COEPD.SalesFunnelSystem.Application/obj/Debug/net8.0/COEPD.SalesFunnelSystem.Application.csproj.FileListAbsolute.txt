@@ -1,0 +1,15 @@
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Application.deps.json
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Application.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Application.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\bin\Debug\net8.0\COEPD.SalesFunnelSystem.Domain.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.csproj.AssemblyReference.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.AssemblyInfoInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.AssemblyInfo.cs
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.csproj.CoreCompileInputs.cache
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.Sa.4CBD9398.Up2Date
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\refint\COEPD.SalesFunnelSystem.Application.dll
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\COEPD.SalesFunnelSystem.Application.pdb
+C:\Users\PC\Desktop\CRM MODEL\src\COEPD.SalesFunnelSystem.Application\obj\Debug\net8.0\ref\COEPD.SalesFunnelSystem.Application.dll

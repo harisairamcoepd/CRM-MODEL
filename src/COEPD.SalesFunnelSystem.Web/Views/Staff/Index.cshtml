@@ -1,0 +1,254 @@
+@model List<COEPD.SalesFunnelSystem.Application.DTOs.LeadResponse>
+@{
+    var filter = ViewBag.Filter as COEPD.SalesFunnelSystem.Application.DTOs.LeadFilterRequest ?? new();
+    var domains = ViewBag.Domains as List<string> ?? new();
+    var totalLeads = Model.Count;
+    var newLeads = Model.Count(x => x.Status == "New");
+    var contactedLeads = Model.Count(x => x.Status == "Contacted");
+    var demoBookedLeads = Model.Count(x => x.Status == "DemoBooked");
+    var convertedLeads = Model.Count(x => x.Status == "Converted");
+    var conversionRate = totalLeads == 0 ? 0 : Math.Round((decimal)convertedLeads * 100m / totalLeads, 0);
+
+    var stageConfigs = new[]
+    {
+        new { Key = "New", Title = "New", Description = "Fresh leads captured from campaigns and landing pages.", Accent = "new", Progress = 25 },
+        new { Key = "Contacted", Title = "Contacted", Description = "Counselor outreach is active and follow-up is in motion.", Accent = "contacted", Progress = 50 },
+        new { Key = "DemoBooked", Title = "Demo Booked", Description = "Qualified leads committed to a demo session.", Accent = "demo", Progress = 75 },
+        new { Key = "Converted", Title = "Converted", Description = "Closed-won leads that completed the funnel.", Accent = "converted", Progress = 100 }
+    };
+}
+
+<section class="crm-shell">
+    <div class="crm-hero">
+        <div>
+            <span class="crm-kicker">Pipeline Workspace</span>
+            <h1>Lead flow built for movement</h1>
+            <p class="text-subtle">A HubSpot-style Kanban board for moving leads through New, Contacted, Demo Booked, and Converted with instant sync.</p>
+        </div>
+        <div class="crm-hero-actions">
+            <span class="crm-chip"><i class="ph ph-shield-check"></i> Staff / Admin access</span>
+            <span class="crm-chip"><i class="ph ph-arrows-left-right"></i> Move stages live</span>
+        </div>
+    </div>
+
+    <div class="crm-scoreboard">
+        <article class="crm-score-card crm-score-card-primary">
+            <div class="crm-score-head">
+                <span>Total Leads</span>
+                <i class="ph ph-users"></i>
+            </div>
+            <strong>@totalLeads</strong>
+            <p>Leads currently visible inside this pipeline view.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>New</span>
+                <i class="ph ph-sparkle"></i>
+            </div>
+            <strong>@newLeads</strong>
+            <p>Fresh leads waiting for the first touch.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>Demo Booked</span>
+                <i class="ph ph-calendar-check"></i>
+            </div>
+            <strong>@demoBookedLeads</strong>
+            <p>High-intent leads lined up for demos.</p>
+        </article>
+
+        <article class="crm-score-card">
+            <div class="crm-score-head">
+                <span>Conversion</span>
+                <i class="ph ph-target"></i>
+            </div>
+            <strong>@conversionRate%</strong>
+            <p>@convertedLeads converted from the active lead set.</p>
+        </article>
+    </div>
+
+    <section class="glass-card crm-panel">
+        <div class="crm-panel-head">
+            <div>
+                <span class="crm-panel-label">Filters</span>
+                <h2>Pipeline filters</h2>
+            </div>
+        </div>
+
+        <form method="get" class="dashboard-filter-form crm-filter-form">
+            <div class="filter-group">
+                <label>Search Leads</label>
+                <input type="text" name="search" value="@filter.Search" placeholder="Name, phone, email..." />
+            </div>
+            <div class="filter-group">
+                <label>Domain</label>
+                <select name="domain">
+                    <option value="">All Domains</option>
+                    @foreach (var domain in domains)
+                    {
+                        <option value="@domain" selected="@(filter.Domain == domain ? "selected" : null)">@domain</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Date From</label>
+                <input type="date" name="fromDate" value="@filter.FromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="filter-group">
+                <label>Date To</label>
+                <input type="date" name="toDate" value="@filter.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <a href="/Staff" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="glass-card pipeline-board-card hubspot-board">
+        <div class="pipeline-board-head">
+            <div>
+                <span class="crm-panel-label">Visual Pipeline</span>
+                <h2>HubSpot-style Kanban board</h2>
+                <p class="text-subtle">Pick a lead, choose the next stage, and move it instantly without refreshing the page.</p>
+            </div>
+            <div class="crm-head-meta">
+                <span class="crm-chip"><i class="ph ph-chart-bar"></i> Contacted: @contactedLeads</span>
+                <span class="crm-chip"><i class="ph ph-check-circle"></i> Converted: @convertedLeads</span>
+            </div>
+        </div>
+
+        <div class="kanban-shell">
+            <section class="kanban-track">
+                @foreach (var stage in stageConfigs)
+                {
+                    var stageLeads = Model.Where(x => x.Status == stage.Key).OrderByDescending(x => x.CreatedAt).ToList();
+                    <div class="kanban-column kanban-column-@stage.Accent">
+                        <div class="kanban-column-head">
+                            <div>
+                                <span class="kanban-stage-tag">@stage.Title</span>
+                                <h3>@stage.Title</h3>
+                                <p>@stage.Description</p>
+                            </div>
+                            <span class="kanban-stage-count" data-stage-count="@stage.Key">@stageLeads.Count</span>
+                        </div>
+
+                        <div class="kanban-stage-progress">
+                            <span>
+                                <small>Stage Health</small>
+                                <strong>@stage.Progress%</strong>
+                            </span>
+                            <div class="kanban-progress-track">
+                                <div class="kanban-progress-fill" style="width: @stage.Progress%"></div>
+                            </div>
+                        </div>
+
+                        <div class="kanban-column-cards" data-stage-cards="@stage.Key">
+                            @foreach (var lead in stageLeads)
+                            {
+                                <article class="pipeline-card kanban-card" data-lead-id="@lead.Id" data-current-stage="@lead.Status">
+                                    <div class="kanban-card-head">
+                                        <div>
+                                            <strong>@lead.Name</strong>
+                                            <p>#@lead.Id · @lead.Domain</p>
+                                        </div>
+                                        <span class="kanban-card-avatar">@lead.Name.Substring(0, 1)</span>
+                                    </div>
+
+                                    <div class="kanban-card-progress">
+                                        <div class="kanban-card-progress-meta">
+                                            <span class="kanban-progress-label">@stage.Title</span>
+                                            <span class="kanban-progress-value">@stage.Progress%</span>
+                                        </div>
+                                        <div class="kanban-progress-track">
+                                            <div class="kanban-progress-fill" style="width: @stage.Progress%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="kanban-card-body">
+                                        <div class="kanban-card-row">
+                                            <span class="pill pill-domain">@lead.Location</span>
+                                            <span class="kanban-card-source">@lead.Source</span>
+                                        </div>
+                                        <a class="kanban-contact-link" href="mailto:@lead.Email">@lead.Email</a>
+                                        <a class="kanban-contact-link" href="tel:@lead.Phone">@lead.Phone</a>
+                                    </div>
+
+                                    <div class="pipeline-actions kanban-actions">
+                                        <select class="pipeline-status-select table-status-select">
+                                            <option value="New" selected="@(lead.Status == "New" ? "selected" : null)">New</option>
+                                            <option value="Contacted" selected="@(lead.Status == "Contacted" ? "selected" : null)">Contacted</option>
+                                            <option value="DemoBooked" selected="@(lead.Status == "DemoBooked" ? "selected" : null)">Demo Booked</option>
+                                            <option value="Converted" selected="@(lead.Status == "Converted" ? "selected" : null)">Converted</option>
+                                        </select>
+                                        <button class="btn btn-primary btn-small pipeline-update-btn" data-id="@lead.Id">Move</button>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+        </div>
+    </section>
+
+    <div class="table-card crm-leads-panel">
+        <div class="table-header crm-table-head">
+            <div>
+                <span class="crm-panel-label">Table View</span>
+                <h3>Pipeline list</h3>
+            </div>
+            <div class="crm-head-meta">
+                <span class="crm-chip">@totalLeads records</span>
+            </div>
+        </div>
+        <div class="crm-table-wrap">
+            <table class="crm-table">
+                <thead>
+                    <tr>
+                        <th>Lead</th>
+                        <th>Domain</th>
+                        <th>Status</th>
+                        <th>Source</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lead in Model)
+                    {
+                        var stageColor = lead.Status?.ToLowerInvariant() switch
+                        {
+                            "demobooked" => "pill-stage-demobooked",
+                            "contacted" => "pill-stage-contacted",
+                            "converted" => "pill-stage-enrolled",
+                            _ => "pill-stage-new"
+                        };
+
+                        <tr>
+                            <td>
+                                <div class="lead-name-cell">
+                                    <div class="lead-avatar">@lead.Name.Substring(0, 1)</div>
+                                    <div>
+                                        <div class="lead-name">@lead.Name</div>
+                                        <div class="text-subtle">@lead.Location | @lead.CreatedAt.ToString("MMM dd")</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="pill pill-domain">@lead.Domain</span></td>
+                            <td><span class="pill @stageColor">@lead.Status</span></td>
+                            <td><span class="text-subtle">@lead.Source</span></td>
+                            <td class="text-right">
+                                <div class="flex gap-2" style="justify-content: flex-end;">
+                                    <a class="btn-icon" href="tel:@lead.Phone" title="Call"><i class="ph ph-phone-call"></i></a>
+                                    <a class="btn-icon" href="mailto:@lead.Email" title="Email"><i class="ph ph-envelope"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

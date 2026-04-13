@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace COEPD.SalesFunnelSystem.Web.Controllers.Api;
 
@@ -107,12 +108,12 @@ public class LeadsController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "StaffOrAdmin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Get([FromQuery] LeadFilterRequest filter, CancellationToken cancellationToken)
         => Ok(await _leadService.GetAllAsync(filter, cancellationToken));
 
     [HttpGet("{id:int}")]
-    [AllowAnonymous]
+    [Authorize(Policy = "StaffOrAdmin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         => Ok(await _leadService.GetByIdAsync(id, cancellationToken));
 
@@ -140,6 +141,7 @@ public class LeadsController : ControllerBase
 
 [ApiController]
 [Route("api/demo")]
+[Route("api/demo-booking")]
 public class DemoBookingController : ControllerBase
 {
     private readonly IDemoBookingService _demoBookingService;
@@ -147,9 +149,9 @@ public class DemoBookingController : ControllerBase
 
     [HttpGet("availability")]
     [AllowAnonymous]
-    public async Task<IActionResult> CheckAvailability([FromQuery] string day, [FromQuery] string slot, CancellationToken cancellationToken)
+    public async Task<IActionResult> CheckAvailability([FromQuery] string date, [FromQuery] string timeSlot, CancellationToken cancellationToken)
     {
-        var availability = await _demoBookingService.CheckAvailabilityAsync(day, slot, cancellationToken);
+        var availability = await _demoBookingService.CheckAvailabilityAsync(date, timeSlot, cancellationToken);
         return Ok(new
         {
             success = true,
@@ -173,8 +175,8 @@ public class DemoBookingController : ControllerBase
             {
                 confirmationCode,
                 leadId = booking.LeadId,
-                day = booking.Day,
-                slot = booking.Slot,
+                date = booking.Date,
+                timeSlot = booking.TimeSlot,
                 status = booking.Status
             },
             booking
@@ -201,6 +203,100 @@ public class DemoBookingController : ControllerBase
 }
 
 [ApiController]
+[Route("api/admin")]
+[Authorize(Policy = "AdminOnly", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
+public class AdminCrmController : ControllerBase
+{
+    private readonly ILeadService _leadService;
+    private readonly IAnalyticsService _analyticsService;
+
+    public AdminCrmController(ILeadService leadService, IAnalyticsService analyticsService)
+    {
+        _leadService = leadService;
+        _analyticsService = analyticsService;
+    }
+
+    [HttpGet("leads")]
+    public async Task<IActionResult> GetAllLeads([FromQuery] LeadFilterRequest filter, CancellationToken cancellationToken)
+        => Ok(await _leadService.GetAllAsync(filter, cancellationToken));
+
+    [HttpGet("leads/today")]
+    public async Task<IActionResult> GetTodayLeads(CancellationToken cancellationToken)
+        => Ok(await _leadService.GetTodayAsync(cancellationToken));
+
+    [HttpGet("lead-stats")]
+    public async Task<IActionResult> GetLeadStats(CancellationToken cancellationToken)
+        => Ok(await _analyticsService.GetLeadStatsAsync(cancellationToken));
+
+    [HttpGet("lead-growth")]
+    public async Task<IActionResult> GetLeadGrowth([FromQuery] int days = 14, CancellationToken cancellationToken = default)
+        => Ok(await _analyticsService.GetLeadGrowthAsync(days, cancellationToken));
+
+    [HttpPut("leads/{leadId:int}/assign/{staffId:int}")]
+    public async Task<IActionResult> AssignLead(int leadId, int staffId, CancellationToken cancellationToken)
+    {
+        var assignment = await _leadService.AssignLeadAsync(leadId, staffId, cancellationToken);
+        return Ok(new
+        {
+            success = true,
+            message = "Lead assigned successfully.",
+            assignment
+        });
+    }
+}
+
+[ApiController]
+[Route("api/staff")]
+[Authorize(Policy = "StaffOrAdmin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
+public class StaffLeadsController : ControllerBase
+{
+    private readonly ILeadService _leadService;
+
+    public StaffLeadsController(ILeadService leadService)
+    {
+        _leadService = leadService;
+    }
+
+    [HttpGet("leads/assigned")]
+    public async Task<IActionResult> GetAssignedLeads(CancellationToken cancellationToken)
+    {
+        var staffId = GetCurrentUserId();
+        var leads = await _leadService.GetAssignedAsync(staffId, cancellationToken);
+        return Ok(leads);
+    }
+
+    [HttpPut("leads/{leadId:int}/status")]
+    public async Task<IActionResult> UpdateLeadStatus(int leadId, [FromBody] UpdateLeadStatusRequest request, CancellationToken cancellationToken)
+    {
+        var lead = await _leadService.GetByIdAsync(leadId, cancellationToken);
+        var currentUserId = GetCurrentUserId();
+        if (lead.AssignedStaffId.HasValue && lead.AssignedStaffId.Value != currentUserId && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
+        var result = await _leadService.UpdateStatusAsync(leadId, request, cancellationToken);
+        return Ok(new
+        {
+            success = true,
+            message = "Lead status updated successfully.",
+            lead = result
+        });
+    }
+
+    private int GetCurrentUserId()
+    {
+        var rawUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!int.TryParse(rawUserId, out var userId))
+        {
+            throw new UnauthorizedAccessException("Authenticated user id is missing.");
+        }
+
+        return userId;
+    }
+}
+
+[ApiController]
 [Route("api/dashboard")]
 [Authorize(Policy = "StaffOrAdmin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
 public class DashboardController : ControllerBase
@@ -212,7 +308,8 @@ public class DashboardController : ControllerBase
     public async Task<IActionResult> GetStats(CancellationToken cancellationToken) => Ok(await _analyticsService.GetStatsAsync(cancellationToken));
 
     [HttpGet("lead-growth")]
-    public async Task<IActionResult> GetLeadGrowth(CancellationToken cancellationToken) => Ok(await _analyticsService.GetLeadGrowthAsync(cancellationToken));
+    public async Task<IActionResult> GetLeadGrowth([FromQuery] int days = 7, CancellationToken cancellationToken = default)
+        => Ok(await _analyticsService.GetLeadGrowthAsync(days, cancellationToken));
 
     [HttpGet("lead-analytics")]
     public async Task<IActionResult> GetLeadAnalytics(CancellationToken cancellationToken) => Ok(await _analyticsService.GetLeadAnalyticsAsync(cancellationToken));
@@ -349,5 +446,125 @@ public class PipelineController : ControllerBase
             message = "Lead moved successfully.",
             lead
         });
+    }
+}
+
+[ApiController]
+[Route("api/automation")]
+[Authorize(Policy = "StaffOrAdmin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
+public class AutomationController : ControllerBase
+{
+    private readonly ILeadRepository _leadRepository;
+    private readonly IDemoBookingRepository _demoBookingRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IEmailAutomationService _emailAutomationService;
+    private readonly IWhatsAppAutomationService _whatsAppAutomationService;
+    private readonly IStaffNotificationService _staffNotificationService;
+
+    public AutomationController(
+        ILeadRepository leadRepository,
+        IDemoBookingRepository demoBookingRepository,
+        IUserRepository userRepository,
+        IEmailAutomationService emailAutomationService,
+        IWhatsAppAutomationService whatsAppAutomationService,
+        IStaffNotificationService staffNotificationService)
+    {
+        _leadRepository = leadRepository;
+        _demoBookingRepository = demoBookingRepository;
+        _userRepository = userRepository;
+        _emailAutomationService = emailAutomationService;
+        _whatsAppAutomationService = whatsAppAutomationService;
+        _staffNotificationService = staffNotificationService;
+    }
+
+    [HttpPost("leads/{leadId:int}/whatsapp")]
+    public async Task<IActionResult> TriggerLeadWhatsApp(int leadId, CancellationToken cancellationToken)
+    {
+        var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken);
+        if (lead is null)
+        {
+            return NotFound(new { success = false, message = "Lead not found." });
+        }
+
+        await _whatsAppAutomationService.SendLeadCapturedMessageAsync(lead, cancellationToken);
+        return Ok(new { success = true, message = "Lead WhatsApp automation triggered." });
+    }
+
+    [HttpPost("leads/{leadId:int}/follow-up")]
+    public async Task<IActionResult> TriggerLeadFollowUp(int leadId, [FromBody] TriggerFollowUpRequest request, CancellationToken cancellationToken)
+    {
+        var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken);
+        if (lead is null)
+        {
+            return NotFound(new { success = false, message = "Lead not found." });
+        }
+
+        var followUpType = request.FollowUpType?.Trim();
+        if (followUpType is not (Domain.Entities.FollowUpJobTypes.OneHour or Domain.Entities.FollowUpJobTypes.OneDay))
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "FollowUpType must be OneHour or OneDay."
+            });
+        }
+
+        await _emailAutomationService.TriggerLeadFollowUpAsync(lead, followUpType, cancellationToken);
+        await _whatsAppAutomationService.SendLeadFollowUpAsync(lead, followUpType, cancellationToken);
+        return Ok(new { success = true, message = "Lead follow-up automation triggered." });
+    }
+
+    [HttpPost("demo-bookings/{bookingId:int}/confirmation")]
+    public async Task<IActionResult> TriggerDemoConfirmation(int bookingId, CancellationToken cancellationToken)
+    {
+        var booking = await _demoBookingRepository.GetByIdAsync(bookingId, cancellationToken);
+        if (booking is null)
+        {
+            return NotFound(new { success = false, message = "Booking not found." });
+        }
+
+        var lead = await _leadRepository.GetByIdAsync(booking.LeadId, cancellationToken);
+        if (lead is null)
+        {
+            return NotFound(new { success = false, message = "Lead not found for booking." });
+        }
+
+        await _emailAutomationService.TriggerDemoConfirmationAsync(lead, booking.Day, booking.Slot, cancellationToken);
+        await _whatsAppAutomationService.SendDemoReminderAsync(lead, booking.Day, booking.Slot, cancellationToken);
+        return Ok(new { success = true, message = "Demo confirmation automation triggered." });
+    }
+
+    [HttpPost("leads/{leadId:int}/notify-admin")]
+    [Authorize(Policy = "AdminOnly", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> TriggerAdminNotification(int leadId, CancellationToken cancellationToken)
+    {
+        var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken);
+        if (lead is null)
+        {
+            return NotFound(new { success = false, message = "Lead not found." });
+        }
+
+        await _staffNotificationService.NotifyAdminNewLeadAlertAsync(lead, cancellationToken);
+        return Ok(new { success = true, message = "Admin lead alert triggered." });
+    }
+
+    [HttpPost("leads/{leadId:int}/notify-staff/{staffId:int}")]
+    [Authorize(Policy = "AdminOnly", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<IActionResult> TriggerStaffAssignmentNotification(int leadId, int staffId, CancellationToken cancellationToken)
+    {
+        var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken);
+        if (lead is null)
+        {
+            return NotFound(new { success = false, message = "Lead not found." });
+        }
+
+        var staff = await _userRepository.GetByIdAsync(staffId, cancellationToken);
+        if (staff is null)
+        {
+            return NotFound(new { success = false, message = "Staff user not found." });
+        }
+
+        await _staffNotificationService.NotifyStaffLeadAssignedAsync(lead, staff, cancellationToken);
+        return Ok(new { success = true, message = "Staff assignment notification triggered." });
     }
 }

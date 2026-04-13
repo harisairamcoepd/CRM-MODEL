@@ -69,6 +69,10 @@ public class ChatService : IChatService
                 return Build(session, "Which city are you joining from?");
             case "AskLocation":
                 session.Location = message; session.Stage = "AskDomain";
+                await _chatRepository.UpdateAsync(session, cancellationToken);
+                return Build(session, "Which domain are you interested in?", DomainReplies);
+            case "AskDomain":
+                session.Domain = message; session.Stage = "Menu";
                 if (!session.LeadCaptured)
                 {
                     var lead = await _leadService.CreateAsync(new CreateLeadRequest
@@ -77,7 +81,7 @@ public class ChatService : IChatService
                         Phone = session.Phone ?? string.Empty,
                         Email = session.Email ?? string.Empty,
                         Location = session.Location ?? string.Empty,
-                        Domain = "General Enquiry",
+                        Domain = session.Domain,
                         Source = "Chatbot"
                     }, cancellationToken);
 
@@ -90,14 +94,10 @@ public class ChatService : IChatService
                         Stage = session.Stage,
                         LeadCaptured = true,
                         LeadId = lead.Id,
-                        Reply = "Your details are saved. Our team will contact you.",
-                        QuickReplies = DomainReplies.ToList()
+                        Reply = $"Perfect. I've saved your details for {session.Domain}. What would you like to know next?",
+                        QuickReplies = MenuReplies.ToList()
                     };
                 }
-                await _chatRepository.UpdateAsync(session, cancellationToken);
-                return Build(session, "Which domain are you interested in?", DomainReplies);
-            case "AskDomain":
-                session.Domain = message; session.Stage = "Menu";
                 await _chatRepository.UpdateAsync(session, cancellationToken);
                 return Build(session, "Choose one of the options below.", MenuReplies);
             default:

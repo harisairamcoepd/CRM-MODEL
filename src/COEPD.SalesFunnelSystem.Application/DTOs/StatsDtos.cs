@@ -11,6 +11,17 @@ public class DashboardStatsResponse
     public Dictionary<string, int> SourceBreakdown { get; set; } = new();
 }
 
+public class LeadStatsResponse
+{
+    public int TotalLeads { get; set; }
+    public int TodayLeads { get; set; }
+    public int ThisMonthLeads { get; set; }
+    public int DemoBookedLeads { get; set; }
+    public int ConvertedLeads { get; set; }
+    public decimal ConversionRate { get; set; }
+    public Dictionary<string, int> StatusBreakdown { get; set; } = new();
+}
+
 public class LeadGrowthPoint
 {
     public string Label { get; set; } = string.Empty;

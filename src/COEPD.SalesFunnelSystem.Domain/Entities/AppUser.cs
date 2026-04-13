@@ -12,4 +12,7 @@ public class AppUser : BaseEntity
     public int FailedLoginAttempts { get; set; }
     public DateTime? LockoutEndUtc { get; set; }
     public DateTime? LastLoginAtUtc { get; set; }
+    public ICollection<Lead> AssignedLeads { get; set; } = new List<Lead>();
+    public ICollection<LeadActivityLog> LeadActivities { get; set; } = new List<LeadActivityLog>();
+    public ICollection<LeadStageTransition> LeadStageTransitions { get; set; } = new List<LeadStageTransition>();
 }

@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.sixth/
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.user
+*.suo
+src/COEPD.SalesFunnelSystem.Web/App_Data/

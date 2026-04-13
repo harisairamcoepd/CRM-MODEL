@@ -1,0 +1,651 @@
+@* // INTEGRATION NOTE
+   // Render this partial with a model of IReadOnlyList<COEPD.SalesFunnelSystem.Application.DTOs.KanbanLeadCardDto>.
+   // Optionally set ViewBag.ApiJwtToken to inject a JWT directly into the PATCH request header.
+   // If ViewBag.ApiJwtToken is not set, the partial will also look for localStorage["crm_jwt"] or localStorage["jwtToken"].
+   // The board PATCHes /api/leads/{id}/stage and listens to /hubs/leads via SignalR for cross-session updates. *@
+@using System.Text.Json
+@using COEPD.SalesFunnelSystem.Application.DTOs
+@model IReadOnlyList<KanbanLeadCardDto>?
+@{
+    var componentId = $"kanban-{Guid.NewGuid():N}";
+    var jwtToken = ViewBag.ApiJwtToken as string ?? string.Empty;
+    var utcNow = DateTime.UtcNow;
+    var leads = Model?.Any() == true
+        ? Model
+        : new List<KanbanLeadCardDto>
+        {
+            new()
+            {
+                Id = 101,
+                Name = "Aarav Reddy",
+                Source = "Website",
+                Stage = "New",
+                AssignedStaffName = "Ritika Sharma",
+                Domain = "Data Science",
+                CreatedAtUtc = utcNow.AddDays(-2),
+                StageEnteredAtUtc = utcNow.AddDays(-1)
+            },
+            new()
+            {
+                Id = 102,
+                Name = "Meera Joseph",
+                Source = "WhatsApp",
+                Stage = "Contacted",
+                AssignedStaffName = "Sanjay Kumar",
+                Domain = "Full Stack",
+                CreatedAtUtc = utcNow.AddDays(-6),
+                StageEnteredAtUtc = utcNow.AddDays(-4)
+            },
+            new()
+            {
+                Id = 103,
+                Name = "Aditya Nair",
+                Source = "Ads",
+                Stage = "DemoBooked",
+                AssignedStaffName = "Priya Verma",
+                Domain = "DevOps",
+                CreatedAtUtc = utcNow.AddDays(-5),
+                StageEnteredAtUtc = utcNow.AddDays(-2)
+            },
+            new()
+            {
+                Id = 104,
+                Name = "Sarah Khan",
+                Source = "Referral",
+                Stage = "Converted",
+                AssignedStaffName = "Ritika Sharma",
+                Domain = "AI/ML",
+                CreatedAtUtc = utcNow.AddDays(-12),
+                StageEnteredAtUtc = utcNow.AddDays(-1)
+            }
+        };
+
+    var stageOrder = new[]
+    {
+        new { Key = "New", Title = "New", Accent = "#2563eb", Description = "Fresh leads captured and ready for first touch." },
+        new { Key = "Contacted", Title = "Contacted", Accent = "#0f766e", Description = "Outreach is active and the thread is warm." },
+        new { Key = "DemoBooked", Title = "Demo Booked", Accent = "#d97706", Description = "Qualified leads committed to a demo session." },
+        new { Key = "Converted", Title = "Converted", Accent = "#16a34a", Description = "Closed-won leads that reached the finish line." }
+    };
+
+    var leadsJson = JsonSerializer.Serialize(leads, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+}
+
+<section class="crm-kanban" id="@componentId" data-api-jwt="@jwtToken">
+    <div class="crm-kanban-header">
+        <div>
+            <span class="crm-kanban-kicker">Animated Kanban Board</span>
+            <h2>Move leads across the funnel in real time</h2>
+            <p>Drag cards between stages to sync updates with your API and every connected dashboard.</p>
+        </div>
+        <div class="crm-kanban-meta">
+            <span>@leads.Count leads on board</span>
+            <span>Endpoint: PATCH /api/leads/{id}/stage</span>
+        </div>
+    </div>
+
+    <div class="crm-kanban-grid">
+        @foreach (var stage in stageOrder)
+        {
+            var stageLeads = leads
+                .Where(lead => string.Equals(lead.Stage, stage.Key, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(lead => lead.StageEnteredAtUtc)
+                .ToList();
+
+            <section class="crm-kanban-column" data-stage-column="@stage.Key" style="--column-accent:@stage.Accent;">
+                <header class="crm-kanban-column-head">
+                    <div>
+                        <span class="crm-kanban-stage">@stage.Title</span>
+                        <h3>@stage.Title</h3>
+                        <p>@stage.Description</p>
+                    </div>
+                    <span class="crm-kanban-count" data-stage-count>@stageLeads.Count</span>
+                </header>
+
+                <div class="crm-kanban-dropzone" data-stage-dropzone="@stage.Key">
+                    @foreach (var lead in stageLeads)
+                    {
+                        var daysInStage = Math.Max(0, (int)Math.Floor((utcNow - lead.StageEnteredAtUtc).TotalDays));
+                        var daysClass = daysInStage > 3 ? "is-stale" : string.Empty;
+                        <article class="crm-kanban-card @daysClass"
+                                 data-lead-id="@lead.Id"
+                                 data-stage="@stage.Key"
+                                 data-stage-entered="@lead.StageEnteredAtUtc.ToString("O")">
+                            <div class="crm-kanban-card-head">
+                                <div>
+                                    <h4>@lead.Name</h4>
+                                    <p>@(string.IsNullOrWhiteSpace(lead.Domain) ? $"Lead #{lead.Id}" : $"{lead.Domain} - Lead #{lead.Id}")</p>
+                                </div>
+                                <span class="crm-kanban-badge">@lead.Source</span>
+                            </div>
+
+                            <div class="crm-kanban-card-body">
+                                <div class="crm-kanban-card-row">
+                                    <span class="crm-kanban-label">Source</span>
+                                    <strong data-card-source>@lead.Source</strong>
+                                </div>
+                                <div class="crm-kanban-card-row">
+                                    <span class="crm-kanban-label">Assigned Staff</span>
+                                    <strong data-card-assignee>@(string.IsNullOrWhiteSpace(lead.AssignedStaffName) ? "Unassigned" : lead.AssignedStaffName)</strong>
+                                </div>
+                                <div class="crm-kanban-card-row">
+                                    <span class="crm-kanban-label">Days In Stage</span>
+                                    <strong class="crm-kanban-days @daysClass" data-card-days>@daysInStage day@(daysInStage == 1 ? string.Empty : "s")</strong>
+                                </div>
+                            </div>
+                        </article>
+                    }
+
+                    <div class="crm-kanban-placeholder @(stageLeads.Count == 0 ? "is-visible" : string.Empty)" data-empty-placeholder>
+                        Drop a lead here
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+</section>
+
+<style>
+    #@componentId {
+        --kanban-surface: rgba(255, 255, 255, 0.94);
+        --kanban-border: rgba(148, 163, 184, 0.22);
+        --kanban-text: var(--text-primary, #0f172a);
+        --kanban-muted: var(--text-secondary, #64748b);
+        --kanban-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+        display: grid;
+        gap: 1.2rem;
+    }
+
+    #@componentId .crm-kanban-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    #@componentId .crm-kanban-kicker {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.12);
+        color: #1d4ed8;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    #@componentId .crm-kanban-header h2 {
+        margin: 0.4rem 0 0.4rem;
+        font-size: clamp(1.4rem, 2vw, 2rem);
+        color: var(--kanban-text);
+    }
+
+    #@componentId .crm-kanban-header p,
+    #@componentId .crm-kanban-meta,
+    #@componentId .crm-kanban-column-head p,
+    #@componentId .crm-kanban-label {
+        color: var(--kanban-muted);
+    }
+
+    #@componentId .crm-kanban-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: flex-end;
+        font-size: 0.88rem;
+    }
+
+    #@componentId .crm-kanban-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    #@componentId .crm-kanban-column {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 0.85rem;
+        min-height: 520px;
+        padding: 1rem;
+        border-radius: 24px;
+        border: 1px solid var(--kanban-border);
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96));
+        box-shadow: var(--kanban-shadow);
+    }
+
+    #@componentId .crm-kanban-column-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    #@componentId .crm-kanban-column-head h3 {
+        margin: 0.2rem 0;
+        color: var(--kanban-text);
+    }
+
+    #@componentId .crm-kanban-stage {
+        display: inline-flex;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--column-accent) 12%, white);
+        color: var(--column-accent);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    #@componentId .crm-kanban-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.4rem;
+        height: 2.4rem;
+        padding: 0 0.7rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--column-accent) 14%, white);
+        color: var(--column-accent);
+        font-weight: 800;
+    }
+
+    #@componentId .crm-kanban-dropzone {
+        position: relative;
+        display: grid;
+        align-content: start;
+        gap: 0.8rem;
+        min-height: 370px;
+    }
+
+    #@componentId .crm-kanban-card {
+        padding: 1rem;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: var(--kanban-surface);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        opacity: 0;
+        transform: translateY(16px);
+        animation: crmKanbanCardIn 480ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+    #@componentId .crm-kanban-card.is-dragging {
+        transform: rotate(2deg);
+        box-shadow: 0 24px 40px rgba(15, 23, 42, 0.18);
+    }
+
+    #@componentId .crm-kanban-card.is-stale {
+        border-color: rgba(220, 38, 38, 0.25);
+    }
+
+    #@componentId .crm-kanban-card-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.85rem;
+        align-items: flex-start;
+        margin-bottom: 0.9rem;
+    }
+
+    #@componentId .crm-kanban-card-head h4 {
+        margin: 0;
+        color: var(--kanban-text);
+        font-size: 1rem;
+    }
+
+    #@componentId .crm-kanban-card-head p {
+        margin: 0.3rem 0 0;
+        font-size: 0.84rem;
+        color: var(--kanban-muted);
+    }
+
+    #@componentId .crm-kanban-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.06);
+        color: var(--kanban-text);
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    #@componentId .crm-kanban-card-body {
+        display: grid;
+        gap: 0.65rem;
+    }
+
+    #@componentId .crm-kanban-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    #@componentId .crm-kanban-card-row strong {
+        color: var(--kanban-text);
+        text-align: right;
+    }
+
+    #@componentId .crm-kanban-days.is-stale {
+        color: #dc2626;
+    }
+
+    #@componentId .crm-kanban-placeholder {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        min-height: 124px;
+        border-radius: 18px;
+        border: 1.5px dashed rgba(148, 163, 184, 0.4);
+        color: var(--kanban-muted);
+        background: rgba(248, 250, 252, 0.65);
+        font-size: 0.9rem;
+    }
+
+    #@componentId .crm-kanban-placeholder.is-visible {
+        display: flex;
+    }
+
+    #@componentId .sortable-ghost {
+        opacity: 0.4;
+    }
+
+    #@componentId .sortable-chosen {
+        cursor: grabbing;
+    }
+
+    @@keyframes crmKanbanCardIn {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 1200px) {
+        #@componentId .crm-kanban-grid {
+            grid-template-columns: repeat(2, minmax(240px, 1fr));
+        }
+    }
+
+    @@media (max-width: 760px) {
+        #@componentId .crm-kanban-header {
+            flex-direction: column;
+        }
+
+        #@componentId .crm-kanban-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const root = document.getElementById("@componentId");
+        if (!root || root.dataset.initialized === "true") {
+            return;
+        }
+
+        root.dataset.initialized = "true";
+        const initialLeads = @Html.Raw(leadsJson);
+        const boardState = new Map(initialLeads.map(lead => [lead.id, lead]));
+        const stageOrder = ["New", "Contacted", "DemoBooked", "Converted"];
+
+        function ensureScript(src) {
+            return new Promise((resolve, reject) => {
+                const existing = Array.from(document.scripts).find(script => script.src === src);
+                if (existing) {
+                    if (existing.dataset.loaded === "true") {
+                        resolve();
+                        return;
+                    }
+
+                    existing.addEventListener("load", () => resolve(), { once: true });
+                    existing.addEventListener("error", reject, { once: true });
+                    return;
+                }
+
+                const script = document.createElement("script");
+                script.src = src;
+                script.async = true;
+                script.addEventListener("load", () => {
+                    script.dataset.loaded = "true";
+                    resolve();
+                }, { once: true });
+                script.addEventListener("error", reject, { once: true });
+                document.head.appendChild(script);
+            });
+        }
+
+        function getJwtToken() {
+            return root.dataset.apiJwt
+                || window.localStorage.getItem("crm_jwt")
+                || window.localStorage.getItem("jwtToken")
+                || "";
+        }
+
+        function getDropzone(stage) {
+            return root.querySelector(`[data-stage-dropzone="${stage}"]`);
+        }
+
+        function refreshColumnState(column) {
+            if (!column) {
+                return;
+            }
+
+            const countElement = column.querySelector("[data-stage-count]");
+            const dropzone = column.querySelector("[data-stage-dropzone]");
+            const placeholder = column.querySelector("[data-empty-placeholder]");
+            const cardCount = dropzone.querySelectorAll(".crm-kanban-card").length;
+            countElement.textContent = cardCount.toString();
+            placeholder.classList.toggle("is-visible", cardCount === 0);
+        }
+
+        function formatDays(days) {
+            return `${days} day${days === 1 ? "" : "s"}`;
+        }
+
+        function getDaysInStage(stageEnteredAtUtc) {
+            const entered = new Date(stageEnteredAtUtc);
+            const diff = Math.max(0, Date.now() - entered.getTime());
+            return Math.floor(diff / 86400000);
+        }
+
+        function updateCardPresentation(card, lead) {
+            const daysInStage = getDaysInStage(lead.stageEnteredAtUtc);
+            const assignee = lead.assignedStaffName || "Unassigned";
+            card.dataset.stage = lead.stage;
+            card.dataset.stageEntered = lead.stageEnteredAtUtc;
+            card.querySelector("[data-card-source]").textContent = lead.source || "Unknown";
+            card.querySelector("[data-card-assignee]").textContent = assignee;
+
+            const daysNode = card.querySelector("[data-card-days]");
+            daysNode.textContent = formatDays(daysInStage);
+            daysNode.classList.toggle("is-stale", daysInStage > 3);
+            card.classList.toggle("is-stale", daysInStage > 3);
+        }
+
+        function createCard(lead) {
+            const card = document.createElement("article");
+            card.className = "crm-kanban-card";
+            card.dataset.leadId = lead.id;
+            card.innerHTML = `
+                <div class="crm-kanban-card-head">
+                    <div>
+                        <h4>${lead.name}</h4>
+                        <p>${lead.domain ? `${lead.domain} - Lead #${lead.id}` : `Lead #${lead.id}`}</p>
+                    </div>
+                    <span class="crm-kanban-badge">${lead.source || "Unknown"}</span>
+                </div>
+                <div class="crm-kanban-card-body">
+                    <div class="crm-kanban-card-row">
+                        <span class="crm-kanban-label">Source</span>
+                        <strong data-card-source></strong>
+                    </div>
+                    <div class="crm-kanban-card-row">
+                        <span class="crm-kanban-label">Assigned Staff</span>
+                        <strong data-card-assignee></strong>
+                    </div>
+                    <div class="crm-kanban-card-row">
+                        <span class="crm-kanban-label">Days In Stage</span>
+                        <strong class="crm-kanban-days" data-card-days></strong>
+                    </div>
+                </div>`;
+            updateCardPresentation(card, lead);
+            return card;
+        }
+
+        function upsertCard(lead) {
+            boardState.set(lead.id, lead);
+            const targetDropzone = getDropzone(lead.stage);
+            if (!targetDropzone) {
+                return;
+            }
+
+            let card = root.querySelector(`.crm-kanban-card[data-lead-id="${lead.id}"]`);
+            const originColumn = card ? card.closest("[data-stage-column]") : null;
+            if (!card) {
+                card = createCard(lead);
+            } else {
+                updateCardPresentation(card, lead);
+            }
+
+            targetDropzone.prepend(card);
+            card.classList.remove("is-dragging");
+            card.style.animationDelay = "0ms";
+
+            refreshColumnState(targetDropzone.closest("[data-stage-column]"));
+            refreshColumnState(originColumn);
+        }
+
+        async function patchStage(leadId, stage) {
+            const token = getJwtToken();
+            const headers = {
+                "Content-Type": "application/json"
+            };
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`/api/leads/${leadId}/stage`, {
+                method: "PATCH",
+                credentials: "same-origin",
+                headers,
+                body: JSON.stringify({ stage })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || "Unable to update lead stage.");
+            }
+
+            return response.json().catch(() => ({}));
+        }
+
+        Promise.all([
+            ensureScript("https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"),
+            ensureScript("https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js")
+        ]).then(() => {
+            root.querySelectorAll("[data-stage-column]").forEach(refreshColumnState);
+
+            root.querySelectorAll("[data-stage-dropzone]").forEach(dropzone => {
+                Sortable.create(dropzone, {
+                    group: "crm-lead-pipeline",
+                    animation: 180,
+                    easing: "cubic-bezier(.2,.8,.2,1)",
+                    ghostClass: "sortable-ghost",
+                    chosenClass: "sortable-chosen",
+                    dragClass: "is-dragging",
+                    onEnd: async event => {
+                        const card = event.item;
+                        const leadId = Number(card.dataset.leadId);
+                        const targetStage = event.to.dataset.stageDropzone;
+                        const previousStage = event.from.dataset.stageDropzone;
+
+                        if (!leadId || !targetStage || targetStage === previousStage) {
+                            refreshColumnState(event.from.closest("[data-stage-column]"));
+                            refreshColumnState(event.to.closest("[data-stage-column]"));
+                            return;
+                        }
+
+                        try {
+                            card.classList.add("is-dragging");
+                            const payload = await patchStage(leadId, targetStage);
+                            const existingLead = boardState.get(leadId) || { id: leadId };
+                            const updatedLead = {
+                                ...existingLead,
+                                stage: payload.stage || payload.lead?.stage || payload.lead?.funnelStage || targetStage,
+                                source: payload.source || payload.lead?.source || existingLead.source || "",
+                                name: payload.leadName || payload.lead?.name || existingLead.name || `Lead #${leadId}`,
+                                assignedStaffName: payload.assignedStaffName || payload.lead?.assignedStaffName || existingLead.assignedStaffName || null,
+                                domain: payload.domain || payload.lead?.domain || existingLead.domain || null,
+                                stageEnteredAtUtc: payload.stageEnteredAtUtc || payload.lead?.stageEnteredAtUtc || new Date().toISOString()
+                            };
+
+                            upsertCard(updatedLead);
+                        } catch (error) {
+                            event.from.appendChild(card);
+                            refreshColumnState(event.from.closest("[data-stage-column]"));
+                            refreshColumnState(event.to.closest("[data-stage-column]"));
+                            window.alert(error.message || "Unable to move the lead right now.");
+                        } finally {
+                            card.classList.remove("is-dragging");
+                        }
+                    }
+                });
+            });
+
+            const hubConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/leads", {
+                    accessTokenFactory: () => getJwtToken()
+                })
+                .withAutomaticReconnect()
+                .build();
+
+            hubConnection.on("LeadStageChanged", payload => {
+                if (!payload || !payload.leadId) {
+                    return;
+                }
+
+                const existingLead = boardState.get(payload.leadId) || {};
+                upsertCard({
+                    ...existingLead,
+                    id: payload.leadId,
+                    name: payload.leadName || existingLead.name || `Lead #${payload.leadId}`,
+                    source: payload.source || existingLead.source || "Unknown",
+                    assignedStaffName: payload.assignedStaffName || existingLead.assignedStaffName || null,
+                    domain: existingLead.domain || null,
+                    stage: payload.stage,
+                    stageEnteredAtUtc: payload.stageEnteredAtUtc || new Date().toISOString()
+                });
+            });
+
+            hubConnection.start()
+                .then(() => hubConnection.invoke("JoinPipeline").catch(() => {}))
+                .catch(() => {});
+
+            window.setInterval(() => {
+                root.querySelectorAll(".crm-kanban-card").forEach(card => {
+                    const leadId = Number(card.dataset.leadId);
+                    const lead = boardState.get(leadId);
+                    if (!lead) {
+                        return;
+                    }
+
+                    updateCardPresentation(card, lead);
+                });
+            }, 60000);
+        }).catch(error => {
+            console.error("Kanban initialization failed", error);
+        });
+    })();
+</script>

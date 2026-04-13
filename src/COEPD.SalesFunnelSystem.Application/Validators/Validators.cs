@@ -44,13 +44,41 @@ public class CreateDemoBookingRequestValidator : AbstractValidator<CreateDemoBoo
     public CreateDemoBookingRequestValidator()
     {
         RuleFor(x => x.LeadId).NotNull().GreaterThan(0);
-        RuleFor(x => x.Day).NotEmpty().MaximumLength(40);
-        RuleFor(x => x.Slot).NotEmpty().MaximumLength(40);
+        RuleFor(x => x.Date).NotEmpty().MaximumLength(40);
+        RuleFor(x => x.TimeSlot).NotEmpty().MaximumLength(40);
         RuleFor(x => x.Status)
             .Must(x =>
                 string.IsNullOrWhiteSpace(x) ||
                 string.Equals(x, DemoBookingStatuses.Pending, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(x, DemoBookingStatuses.Confirmed, StringComparison.OrdinalIgnoreCase));
+    }
+}
+
+public class UpdateLeadStatusRequestValidator : AbstractValidator<UpdateLeadStatusRequest>
+{
+    public UpdateLeadStatusRequestValidator()
+    {
+        RuleFor(x => x.Status)
+            .NotEmpty()
+            .Must(x =>
+                string.Equals(x, LeadStatuses.New, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x, LeadStatuses.Contacted, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x, LeadStatuses.DemoBooked, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x, LeadStatuses.Converted, StringComparison.OrdinalIgnoreCase))
+            .WithMessage("Status must be New, Contacted, DemoBooked, or Converted.");
+    }
+}
+
+public class UpdateDemoBookingStatusRequestValidator : AbstractValidator<UpdateDemoBookingStatusRequest>
+{
+    public UpdateDemoBookingStatusRequestValidator()
+    {
+        RuleFor(x => x.Status)
+            .NotEmpty()
+            .Must(x =>
+                string.Equals(x, DemoBookingStatuses.Pending, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x, DemoBookingStatuses.Confirmed, StringComparison.OrdinalIgnoreCase))
+            .WithMessage("Status must be Pending or Confirmed.");
     }
 }
 

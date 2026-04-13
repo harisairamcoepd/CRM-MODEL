@@ -2,6 +2,7 @@ using COEPD.SalesFunnelSystem.Application.DTOs;
 using COEPD.SalesFunnelSystem.Application.Interfaces;
 using COEPD.SalesFunnelSystem.Application.Common;
 using COEPD.SalesFunnelSystem.Domain.Entities;
+using COEPD.SalesFunnelSystem.Domain.Enums;
 
 namespace COEPD.SalesFunnelSystem.Application.Services;
 
@@ -12,19 +13,25 @@ public class LeadService : ILeadService
     private readonly ILeadActivityRepository _leadActivityRepository;
     private readonly IMarketingAutomationService _marketingAutomationService;
     private readonly IAnalyticsService _analyticsService;
+    private readonly IUserRepository _userRepository;
+    private readonly IStaffNotificationService _staffNotificationService;
 
     public LeadService(
         ILeadRepository leadRepository,
         IFunnelTrackingService funnelTrackingService,
         ILeadActivityRepository leadActivityRepository,
         IMarketingAutomationService marketingAutomationService,
-        IAnalyticsService analyticsService)
+        IAnalyticsService analyticsService,
+        IUserRepository userRepository,
+        IStaffNotificationService staffNotificationService)
     {
         _leadRepository = leadRepository;
         _funnelTrackingService = funnelTrackingService;
         _leadActivityRepository = leadActivityRepository;
         _marketingAutomationService = marketingAutomationService;
         _analyticsService = analyticsService;
+        _userRepository = userRepository;
+        _staffNotificationService = staffNotificationService;
     }
 
     public async Task<LeadResponse> CreateAsync(CreateLeadRequest request, CancellationToken cancellationToken = default)
@@ -49,10 +56,14 @@ public class LeadService : ILeadService
             Status = string.IsNullOrWhiteSpace(request.Status) ? LeadStatuses.New : NormalizeStatus(request.Status),
             Score = string.IsNullOrWhiteSpace(request.Score) ? LeadScores.Warm : request.Score.Trim(),
             Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim(),
-            FunnelStage = FunnelStages.New
+            FunnelStage = FunnelStages.New,
+            AssignedStaffId = await ResolveAssignedStaffIdAsync(cancellationToken)
         };
 
         var created = await _leadRepository.AddAsync(lead, cancellationToken);
+        var assignedStaffName = created.AssignedStaffId.HasValue
+            ? (await _userRepository.GetByIdAsync(created.AssignedStaffId.Value, cancellationToken))?.FullName
+            : null;
         await _funnelTrackingService.TrackAsync(created.Id, FunnelEventStages.Interest, cancellationToken);
         await _marketingAutomationService.TriggerLeadCreatedAsync(created, cancellationToken);
         _analyticsService.InvalidateDashboardCache();
@@ -70,12 +81,14 @@ public class LeadService : ILeadService
             Score = created.Score,
             Notes = created.Notes,
             FunnelStage = created.FunnelStage,
+            AssignedStaffId = created.AssignedStaffId,
+            AssignedStaffName = assignedStaffName,
             CreatedAt = created.CreatedAt
         };
     }
 
     public async Task<List<LeadResponse>> GetAllAsync(LeadFilterRequest filter, CancellationToken cancellationToken = default) =>
-        (await _leadRepository.GetFilteredAsync(
+        MapLeadResponses(await _leadRepository.GetFilteredAsync(
             filter.Search,
             filter.Source,
             filter.Status,
@@ -84,42 +97,26 @@ public class LeadService : ILeadService
             filter.ToDate,
             filter.PageNumber,
             filter.PageSize,
-            cancellationToken))
-        .Select(x => new LeadResponse
+            cancellationToken));
+
+    public async Task<List<LeadResponse>> GetTodayAsync(CancellationToken cancellationToken = default) =>
+        MapLeadResponses(await _leadRepository.GetTodayAsync(cancellationToken));
+
+    public async Task<List<LeadResponse>> GetAssignedAsync(int staffId, CancellationToken cancellationToken = default)
+    {
+        if (staffId <= 0)
         {
-            Id = x.Id,
-            Name = x.Name,
-            Phone = x.Phone,
-            Email = x.Email,
-            Location = x.Location,
-            Domain = x.Domain,
-            Source = x.Source,
-            Status = x.Status,
-            Score = x.Score,
-            Notes = x.Notes,
-            FunnelStage = x.FunnelStage,
-            CreatedAt = x.CreatedAt
-        }).ToList();
+            throw new ArgumentException("Staff id must be greater than zero.");
+        }
+
+        return MapLeadResponses(await _leadRepository.GetAssignedToStaffAsync(staffId, cancellationToken));
+    }
 
     public async Task<LeadResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var lead = await _leadRepository.GetByIdAsync(id, cancellationToken) ?? throw new NotFoundException("Lead not found.");
 
-        return new LeadResponse
-        {
-            Id = lead.Id,
-            Name = lead.Name,
-            Phone = lead.Phone,
-            Email = lead.Email,
-            Location = lead.Location,
-            Domain = lead.Domain,
-            Source = lead.Source,
-            Status = lead.Status,
-            Score = lead.Score,
-            Notes = lead.Notes,
-            FunnelStage = lead.FunnelStage,
-            CreatedAt = lead.CreatedAt
-        };
+        return MapLeadResponse(lead);
     }
 
     public async Task<PipelineBoardResponse> GetPipelineAsync(LeadFilterRequest filter, CancellationToken cancellationToken = default)
@@ -169,7 +166,49 @@ public class LeadService : ILeadService
         {
             Id = lead.Id,
             Status = lead.Status,
-            FunnelStage = lead.FunnelStage
+            FunnelStage = lead.FunnelStage,
+            AssignedStaffId = lead.AssignedStaffId
+        };
+    }
+
+    public async Task<LeadAssignmentResponse> AssignLeadAsync(int leadId, int staffId, CancellationToken cancellationToken = default)
+    {
+        if (leadId <= 0)
+        {
+            throw new ArgumentException("Lead id must be greater than zero.");
+        }
+
+        if (staffId <= 0)
+        {
+            throw new ArgumentException("Staff id must be greater than zero.");
+        }
+
+        var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken) ?? throw new NotFoundException("Lead not found.");
+        var staff = await _userRepository.GetByIdAsync(staffId, cancellationToken) ?? throw new NotFoundException("Staff user not found.");
+
+        if (!staff.IsActive || staff.Role != UserRole.Staff)
+        {
+            throw new ArgumentException("Lead can only be assigned to an active staff user.");
+        }
+
+        lead.AssignedStaffId = staff.Id;
+        await _leadRepository.UpdateAsync(lead, cancellationToken);
+        await _staffNotificationService.NotifyStaffLeadAssignedAsync(lead, staff, cancellationToken);
+        await _leadActivityRepository.AddAsync(new LeadActivityLog
+        {
+            LeadId = lead.Id,
+            UserId = staff.Id,
+            ActivityType = "LeadAssigned",
+            Message = $"Lead assigned to {staff.FullName}.",
+            Status = "Success"
+        }, cancellationToken);
+        _analyticsService.InvalidateDashboardCache();
+
+        return new LeadAssignmentResponse
+        {
+            LeadId = lead.Id,
+            AssignedStaffId = staff.Id,
+            AssignedStaffName = staff.FullName
         };
     }
 
@@ -249,5 +288,52 @@ public class LeadService : ILeadService
             LeadStatuses.DemoBooked => ("Demo Booked", "Qualified leads committed to a demo slot.", "demo", 3, 75),
             LeadStatuses.Converted => ("Converted", "Deals successfully moved into enrollment.", "converted", 4, 100),
             _ => (stage, "Pipeline stage", "new", 99, 0)
+        };
+
+    private async Task<int?> ResolveAssignedStaffIdAsync(CancellationToken cancellationToken)
+    {
+        var staffUsers = (await _userRepository.GetAllAsync(cancellationToken))
+            .Where(x => x.IsActive && x.Role == UserRole.Staff)
+            .ToList();
+
+        if (staffUsers.Count == 0)
+        {
+            return null;
+        }
+
+        var staffLoads = new List<(AppUser User, int Count)>();
+        foreach (var staffUser in staffUsers)
+        {
+            var assignedCount = await _leadRepository.CountAssignedToStaffAsync(staffUser.Id, cancellationToken);
+            staffLoads.Add((staffUser, assignedCount));
+        }
+
+        return staffLoads
+            .OrderBy(x => x.Count)
+            .ThenBy(x => x.User.FullName)
+            .Select(x => (int?)x.User.Id)
+            .FirstOrDefault();
+    }
+
+    private static List<LeadResponse> MapLeadResponses(List<Lead> leads) =>
+        leads.Select(MapLeadResponse).ToList();
+
+    private static LeadResponse MapLeadResponse(Lead lead) =>
+        new()
+        {
+            Id = lead.Id,
+            Name = lead.Name,
+            Phone = lead.Phone,
+            Email = lead.Email,
+            Location = lead.Location,
+            Domain = lead.Domain,
+            Source = lead.Source,
+            Status = lead.Status,
+            Score = lead.Score,
+            Notes = lead.Notes,
+            FunnelStage = lead.FunnelStage,
+            AssignedStaffId = lead.AssignedStaffId,
+            AssignedStaffName = lead.AssignedStaff?.FullName,
+            CreatedAt = lead.CreatedAt
         };
 }

@@ -152,8 +152,8 @@ public class LeadCreatedWhatsAppTrigger : ILeadCreatedTrigger
             await _leadActivityRepository.AddAsync(new LeadActivityLog
             {
                 LeadId = lead.Id,
-                ActivityType = "WhatsAppSimulated",
-                Message = $"WhatsApp simulated send for {lead.Phone}.",
+                ActivityType = "WhatsAppSent",
+                Message = $"WhatsApp lead capture message sent for {lead.Phone}.",
                 Status = "Success"
             }, cancellationToken);
         }
@@ -163,8 +163,8 @@ public class LeadCreatedWhatsAppTrigger : ILeadCreatedTrigger
             await _leadActivityRepository.AddAsync(new LeadActivityLog
             {
                 LeadId = lead.Id,
-                ActivityType = "WhatsAppSimulated",
-                Message = "WhatsApp simulation failed.",
+                ActivityType = "WhatsAppSent",
+                Message = "WhatsApp lead capture message failed.",
                 Status = "Failed"
             }, cancellationToken);
         }
@@ -201,15 +201,18 @@ public class LeadCreatedStaffNotificationTrigger : ILeadCreatedTrigger
 {
     private readonly IStaffNotificationService _staffNotificationService;
     private readonly ILeadActivityRepository _leadActivityRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<LeadCreatedStaffNotificationTrigger> _logger;
 
     public LeadCreatedStaffNotificationTrigger(
         IStaffNotificationService staffNotificationService,
         ILeadActivityRepository leadActivityRepository,
+        IUserRepository userRepository,
         ILogger<LeadCreatedStaffNotificationTrigger> logger)
     {
         _staffNotificationService = staffNotificationService;
         _leadActivityRepository = leadActivityRepository;
+        _userRepository = userRepository;
         _logger = logger;
     }
 
@@ -217,14 +220,31 @@ public class LeadCreatedStaffNotificationTrigger : ILeadCreatedTrigger
     {
         try
         {
-            var recipients = await _staffNotificationService.NotifyLeadCreatedAsync(lead, cancellationToken);
+            await _staffNotificationService.NotifyAdminNewLeadAlertAsync(lead, cancellationToken);
             await _leadActivityRepository.AddAsync(new LeadActivityLog
             {
                 LeadId = lead.Id,
-                ActivityType = "StaffNotified",
-                Message = $"Staff notified for new lead. Recipients: {recipients}.",
+                ActivityType = "AdminAlertSent",
+                Message = "Admin alert sent for new lead.",
                 Status = "Success"
             }, cancellationToken);
+
+            if (lead.AssignedStaffId.HasValue)
+            {
+                var assignedStaff = await _userRepository.GetByIdAsync(lead.AssignedStaffId.Value, cancellationToken);
+                if (assignedStaff is not null)
+                {
+                    await _staffNotificationService.NotifyStaffLeadAssignedAsync(lead, assignedStaff, cancellationToken);
+                    await _leadActivityRepository.AddAsync(new LeadActivityLog
+                    {
+                        LeadId = lead.Id,
+                        UserId = assignedStaff.Id,
+                        ActivityType = "StaffAssignmentNotification",
+                        Message = $"Lead assignment notification sent to {assignedStaff.FullName}.",
+                        Status = "Success"
+                    }, cancellationToken);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -232,8 +252,8 @@ public class LeadCreatedStaffNotificationTrigger : ILeadCreatedTrigger
             await _leadActivityRepository.AddAsync(new LeadActivityLog
             {
                 LeadId = lead.Id,
-                ActivityType = "StaffNotified",
-                Message = "Staff notification failed.",
+                ActivityType = "AdminAlertSent",
+                Message = "Lead alert or staff assignment notification failed.",
                 Status = "Failed"
             }, cancellationToken);
         }

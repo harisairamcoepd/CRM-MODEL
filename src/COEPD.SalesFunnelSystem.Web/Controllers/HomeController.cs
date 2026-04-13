@@ -1,3 +1,4 @@
+using COEPD.SalesFunnelSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace COEPD.SalesFunnelSystem.Web.Controllers;
@@ -6,8 +7,71 @@ public class HomeController : Controller
 {
     public IActionResult Index()
     {
-        ViewBag.Domains = DomainCatalog;
-        return View();
+        var domains = DomainCatalog
+            .Select(name => new LandingDomainOption
+            {
+                Name = name,
+                Category = ResolveCategory(name),
+                Description = BuildDescription(name)
+            })
+            .ToList();
+
+        var featuredDomains = domains
+            .Where(x =>
+                x.Name is "Business Analysis" or
+                "Healthcare BA" or
+                "Data Analytics" or
+                "Power BI" or
+                "Product Management" or
+                "Agile & Scrum" or
+                "Salesforce" or
+                "Generative AI")
+            .ToList();
+
+        return View(new LandingPageViewModel
+        {
+            FeaturedDomains = featuredDomains,
+            Domains = domains
+        });
+    }
+
+    private static string ResolveCategory(string domain)
+    {
+        var value = domain.ToLowerInvariant();
+        if (value.Contains("ba") || value.Contains("analysis") || value.Contains("analyst"))
+        {
+            return "Business Analysis";
+        }
+
+        if (value.Contains("analytics") || value.Contains("power bi") || value.Contains("tableau") || value.Contains("sql") || value.Contains("python"))
+        {
+            return "Analytics";
+        }
+
+        if (value.Contains("product") || value.Contains("scrum") || value.Contains("project") || value.Contains("growth"))
+        {
+            return "Product & Delivery";
+        }
+
+        if (value.Contains("cloud") || value.Contains("testing") || value.Contains("devops") || value.Contains("cyber"))
+        {
+            return "Technology";
+        }
+
+        return "Specialized";
+    }
+
+    private static string BuildDescription(string domain)
+    {
+        var category = ResolveCategory(domain);
+        return category switch
+        {
+            "Business Analysis" => $"Learn how {domain} teams capture requirements, align stakeholders, and drive transformation initiatives.",
+            "Analytics" => $"Build practical {domain} skills with hands-on reporting, insights, dashboards, and decision-making workflows.",
+            "Product & Delivery" => $"Explore {domain} with mentor support, market-ready frameworks, and portfolio-focused execution.",
+            "Technology" => $"Understand the delivery patterns, tools, and modern workflows used in {domain} programs and roles.",
+            _ => $"See how our {domain} pathway fits your current background, growth goals, and live hiring demand."
+        };
     }
 
     private static readonly string[] DomainCatalog =

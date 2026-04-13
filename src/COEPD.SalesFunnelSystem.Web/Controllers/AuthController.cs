@@ -44,8 +44,7 @@ public class AuthController : Controller
             new(ClaimTypes.NameIdentifier, auth.UserId.ToString()),
             new(ClaimTypes.Name, auth.FullName),
             new(ClaimTypes.Email, auth.Email),
-            new(ClaimTypes.Role, auth.Role),
-            new("access_token", auth.Token)
+            new(ClaimTypes.Role, auth.Role)
         };
 
         var authProperties = new AuthenticationProperties

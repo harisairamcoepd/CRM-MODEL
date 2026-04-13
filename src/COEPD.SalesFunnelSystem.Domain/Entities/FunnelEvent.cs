@@ -1,8 +1,9 @@
+using COEPD.SalesFunnelSystem.Domain.Common;
+
 namespace COEPD.SalesFunnelSystem.Domain.Entities;
 
-public class FunnelEvent
+public class FunnelEvent : BaseEntity
 {
-    public int Id { get; set; }
     public int LeadId { get; set; }
     public string Stage { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;

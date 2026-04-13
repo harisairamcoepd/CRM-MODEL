@@ -3,536 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COEPD CRM | Dashboard</title>
-    
+    <title>Sales Funnel Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-    <div class="app-layout">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-area">
-                    <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
-                    <span class="logo-text">COEPD <span class="badge-pro">PRO</span></span>
-                </div>
-                <button class="sidebar-collapse-btn" id="sidebar-collapse" title="Collapse sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
+    <div class="dashboard-shell">
+        <header class="dashboard-header">
+            <div class="header-copy">
+                <span class="eyebrow">Revenue intelligence</span>
+                <h1>Sales Funnel Performance</h1>
+                <p>Track lead flow, conversion momentum, and acquisition sources in a premium command center.</p>
             </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-group">
-                    <p class="nav-title">Menu</p>
-                    <a href="#" class="nav-item active">
-                        <div class="nav-icon"><i class="fas fa-th-large"></i></div>
-                        <span class="nav-label">Overview</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-users"></i></div>
-                        <span class="nav-label">Lead Management</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-filter"></i></div>
-                        <span class="nav-label">Sales Funnel</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-calendar-check"></i></div>
-                        <span class="nav-label">Demo Bookings</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
-                        <span class="nav-label">Analytics</span>
-                    </a>
+            <div class="header-actions">
+                <div class="live-pill">
+                    <span class="live-dot" id="live-indicator"></span>
+                    <span>Live sync</span>
                 </div>
-                <div class="nav-group">
-                    <p class="nav-title">System</p>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-cog"></i></div>
-                        <span class="nav-label">Settings</span>
-                    </a>
-                    <a href="#" class="nav-item">
-                        <div class="nav-icon"><i class="fas fa-life-ring"></i></div>
-                        <span class="nav-label">Support</span>
-                    </a>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://i.pravatar.cc/100?u=admin" alt="Admin" width="40" height="40">
-                    <div class="user-info">
-                        <h4>Admin User</h4>
-                        <span>Sales Manager</span>
-                    </div>
-                    <button class="user-menu-btn"><i class="fas fa-ellipsis-v"></i></button>
+                <div class="updated-pill">
+                    <span class="updated-label">Last updated</span>
+                    <span id="last-updated">--</span>
                 </div>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Topbar -->
-            <header class="topbar">
-                <div class="topbar-left">
-                    <button class="sidebar-mobile-btn" id="sidebar-mobile-btn">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="topbar-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search leads, domains or status...">
-                        <kbd class="search-shortcut">⌘K</kbd>
-                    </div>
-                </div>
-                <div class="topbar-actions">
-                    <button class="btn-icon-top" title="Notifications">
-                        <i class="far fa-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
-                    <button class="btn-icon-top" title="Messages">
-                        <i class="far fa-comment-dots"></i>
-                    </button>
-                    <div class="topbar-divider"></div>
-                    <button class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Lead</button>
-                </div>
-            </header>
-
-            <div class="dashboard-body">
-                <!-- Page Header -->
-                <div class="dashboard-header-flex">
+        <main class="dashboard-main">
+            <section class="hero-panel">
+                <div class="hero-surface">
                     <div>
-                        <h1 class="page-title">Sales Dashboard</h1>
-                        <p class="page-subtitle">Welcome back, Vikram! Here's what's happening today.</p>
+                        <span class="section-badge">Overview</span>
+                        <h2>See what is driving pipeline growth today</h2>
+                        <p class="hero-text">A polished overview of lead acquisition, campaign performance, and demo momentum for your sales team.</p>
                     </div>
-                    <div class="header-filters">
-                            <select class="form-select modern-select">
-                                <option>Last 30 days</option>
-                                <option>Last 7 days</option>
-                                <option>Today</option>
-                                <option>Custom range</option>
-                            </select>
-                            <button class="btn btn-outline btn-sm"><i class="fas fa-cloud-download-alt"></i> Export</button>
-                        </div>
-                    </div>
-
-                    <!-- KPI Cards Row -->
-                    <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon-wrap blue">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <span class="trend positive"><i class="fas fa-arrow-up"></i> 12.5%</span>
-                        </div>
-                        <div class="stat-body">
-                            <h2 class="stat-value" data-value="2854">2,854</h2>
-                            <span class="stat-label">Total Leads</span>
-                        </div>
-                        <div class="stat-sparkline blue"></div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon-wrap green">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <span class="trend positive"><i class="fas fa-arrow-up"></i> 8.2%</span>
-                        </div>
-                        <div class="stat-body">
-                            <h2 class="stat-value" data-value="42">42</h2>
-                            <span class="stat-label">Today's Leads</span>
-                        </div>
-                        <div class="stat-sparkline green"></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon-wrap violet">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <span class="trend positive"><i class="fas fa-arrow-up"></i> 3.1%</span>
-                        </div>
-                        <div class="stat-body">
-                            <h2 class="stat-value" data-value="18.4">18.4%</h2>
-                            <span class="stat-label">Conversion Rate</span>
-                        </div>
-                        <div class="stat-sparkline violet"></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-top">
-                            <div class="stat-icon-wrap orange">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <span class="trend negative"><i class="fas fa-arrow-down"></i> 2.4%</span>
-                        </div>
-                        <div class="stat-body">
-                            <h2 class="stat-value" data-value="156">156</h2>
-                            <span class="stat-label">Demo Bookings</span>
-                        </div>
-                        <div class="stat-sparkline orange"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-label">Conversion confidence</span>
+                        <strong id="kpi-conversion-rate">0%</strong>
+                        <small>Healthy benchmark for inbound demand</small>
                     </div>
                 </div>
+            </section>
 
-                <!-- Charts Row -->
-                <div class="charts-row">
-                    <!-- Funnel Visualization -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <h3>Sales Funnel</h3>
-                                <p class="card-subtitle">Lead progression overview</p>
-                            </div>
-                            <button class="btn-icon-more"><i class="fas fa-ellipsis-h"></i></button>
-                        </div>
-                        <div class="card-body">
-                            <div class="funnel-container">
-                                <div class="funnel-step tier-1">
-                                    <div class="funnel-step-inner">
-                                        <div class="funnel-label">
-                                            <span class="funnel-name">All Leads</span>
-                                            <span class="funnel-count">2,854</span>
-                                        </div>
-                                        <span class="funnel-pct">100%</span>
-                                    </div>
-                                </div>
-                                <div class="funnel-step tier-2">
-                                    <div class="funnel-step-inner">
-                                        <div class="funnel-label">
-                                            <span class="funnel-name">Contacted</span>
-                                            <span class="funnel-count">2,425</span>
-                                        </div>
-                                        <span class="funnel-pct">85%</span>
-                                    </div>
-                                </div>
-                                <div class="funnel-step tier-3">
-                                    <div class="funnel-step-inner">
-                                        <div class="funnel-label">
-                                            <span class="funnel-name">Demos Booked</span>
-                                            <span class="funnel-count">1,712</span>
-                                        </div>
-                                        <span class="funnel-pct">60%</span>
-                                    </div>
-                                </div>
-                                <div class="funnel-step tier-4">
-                                    <div class="funnel-step-inner">
-                                        <div class="funnel-label">
-                                            <span class="funnel-name">Converted</span>
-                                            <span class="funnel-count">525</span>
-                                        </div>
-                                        <span class="funnel-pct">18.4%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <section class="kpi-grid">
+                <article class="metric-card">
+                    <div class="metric-icon metric-icon-blue">↗</div>
+                    <div class="metric-copy">
+                        <span>Total leads</span>
+                        <strong id="kpi-total-leads">0</strong>
+                        <small>All captured pipeline opportunities</small>
                     </div>
+                </article>
 
-                    <!-- Domain Distribution -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <h3>Leads by Domain</h3>
-                                <p class="card-subtitle">Distribution across verticals</p>
-                            </div>
-                            <button class="btn-icon-more"><i class="fas fa-ellipsis-h"></i></button>
-                        </div>
-                        <div class="card-body">
-                            <div class="domain-list">
-                                <div class="domain-item">
-                                    <div class="domain-row">
-                                        <div class="domain-label">
-                                            <div class="domain-dot blue"></div>
-                                            <span>Banking & Fintech</span>
-                                        </div>
-                                        <span class="domain-pct">42%</span>
-                                    </div>
-                                    <div class="domain-bar-bg"><div class="domain-bar-fill" style="width: 42%; background: var(--primary);"></div></div>
-                                </div>
-                                <div class="domain-item">
-                                    <div class="domain-row">
-                                        <div class="domain-label">
-                                            <div class="domain-dot green"></div>
-                                            <span>Healthcare</span>
-                                        </div>
-                                        <span class="domain-pct">28%</span>
-                                    </div>
-                                    <div class="domain-bar-bg"><div class="domain-bar-fill" style="width: 28%; background: var(--success);"></div></div>
-                                </div>
-                                <div class="domain-item">
-                                    <div class="domain-row">
-                                        <div class="domain-label">
-                                            <div class="domain-dot violet"></div>
-                                            <span>E-commerce</span>
-                                        </div>
-                                        <span class="domain-pct">15%</span>
-                                    </div>
-                                    <div class="domain-bar-bg"><div class="domain-bar-fill" style="width: 15%; background: var(--violet);"></div></div>
-                                </div>
-                                <div class="domain-item">
-                                    <div class="domain-row">
-                                        <div class="domain-label">
-                                            <div class="domain-dot orange"></div>
-                                            <span>Supply Chain</span>
-                                        </div>
-                                        <span class="domain-pct">10%</span>
-                                    </div>
-                                    <div class="domain-bar-bg"><div class="domain-bar-fill" style="width: 10%; background: var(--warning);"></div></div>
-                                </div>
-                                <div class="domain-item">
-                                    <div class="domain-row">
-                                        <div class="domain-label">
-                                            <div class="domain-dot cyan"></div>
-                                            <span>Others</span>
-                                        </div>
-                                        <span class="domain-pct">5%</span>
-                                    </div>
-                                    <div class="domain-bar-bg"><div class="domain-bar-fill" style="width: 5%; background: var(--accent);"></div></div>
-                                </div>
-                            </div>
-                        </div>
+                <article class="metric-card">
+                    <div class="metric-icon metric-icon-cyan">•</div>
+                    <div class="metric-copy">
+                        <span>Leads today</span>
+                        <strong id="kpi-today-leads">0</strong>
+                        <small>Fresh activity from current campaigns</small>
                     </div>
-                </div>
+                </article>
 
-                <!-- Lead Table Card -->
-                <div class="card lead-table-card">
-                    <div class="card-header-actions">
-                        <div class="table-title-area">
-                            <h3>Recent Leads</h3>
-                            <span class="badge-count">2,854 total</span>
-                        </div>
-                        <div class="table-filters">
-                            <select class="form-select filter-select">
-                                <option>All Domains</option>
-                                <option>Fintech</option>
-                                <option>Healthcare</option>
-                                <option>E-commerce</option>
-                            </select>
-                            <select class="form-select filter-select">
-                                <option>All Status</option>
-                                <option>New</option>
-                                <option>Contacted</option>
-                                <option>Demo Scheduled</option>
-                                <option>Converted</option>
-                            </select>
-                            <button class="btn btn-outline btn-sm"><i class="fas fa-sliders-h"></i> Filters</button>
-                        </div>
+                <article class="metric-card">
+                    <div class="metric-icon metric-icon-indigo">▣</div>
+                    <div class="metric-copy">
+                        <span>Demo bookings</span>
+                        <strong id="kpi-demo-bookings">0</strong>
+                        <small>Qualified meetings booked this cycle</small>
                     </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th><input type="checkbox" class="checkbox"></th>
-                                    <th>Lead</th>
-                                    <th>Domain</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Assigned To</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><input type="checkbox" class="checkbox"></td>
-                                    <td>
-                                        <div class="lead-cell">
-                                            <div class="avatar-sm blue">AJ</div>
-                                            <div>
-                                                <p class="lead-name">Alex Johnson</p>
-                                                <p class="lead-email">alex@example.com</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="domain-pill">Fintech</span></td>
-                                    <td><span class="date-text">Apr 01, 2026</span></td>
-                                    <td><span class="status-pill new">New</span></td>
-                                    <td>
-                                        <div class="assignee">
-                                            <img src="https://i.pravatar.cc/32?u=vikram" alt="" width="24" height="24">
-                                            <span>Vikram C.</span>
-                                        </div>
-                                    </td>
-                                    <td><button class="btn-icon-table" title="View details"><i class="fas fa-arrow-right"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="checkbox"></td>
-                                    <td>
-                                        <div class="lead-cell">
-                                            <div class="avatar-sm green">RS</div>
-                                            <div>
-                                                <p class="lead-name">Rahul Sharma</p>
-                                                <p class="lead-email">rahul@corp.com</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="domain-pill">Healthcare</span></td>
-                                    <td><span class="date-text">Mar 31, 2026</span></td>
-                                    <td><span class="status-pill contacted">Contacted</span></td>
-                                    <td>
-                                        <div class="assignee">
-                                            <img src="https://i.pravatar.cc/32?u=sneha" alt="" width="24" height="24">
-                                            <span>Sneha I.</span>
-                                        </div>
-                                    </td>
-                                    <td><button class="btn-icon-table" title="View details"><i class="fas fa-arrow-right"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="checkbox"></td>
-                                    <td>
-                                        <div class="lead-cell">
-                                            <div class="avatar-sm violet">MK</div>
-                                            <div>
-                                                <p class="lead-name">Maria King</p>
-                                                <p class="lead-email">maria.k@retail.net</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="domain-pill">Retail</span></td>
-                                    <td><span class="date-text">Mar 30, 2026</span></td>
-                                    <td><span class="status-pill demo">Demo Booked</span></td>
-                                    <td>
-                                        <div class="assignee">
-                                            <img src="https://i.pravatar.cc/32?u=vikram" alt="" width="24" height="24">
-                                            <span>Vikram C.</span>
-                                        </div>
-                                    </td>
-                                    <td><button class="btn-icon-table" title="View details"><i class="fas fa-arrow-right"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="checkbox"></td>
-                                    <td>
-                                        <div class="lead-cell">
-                                            <div class="avatar-sm orange">JD</div>
-                                            <div>
-                                                <p class="lead-name">John Doe</p>
-                                                <p class="lead-email">john.doe@fintech.io</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="domain-pill">Fintech</span></td>
-                                    <td><span class="date-text">Mar 28, 2026</span></td>
-                                    <td><span class="status-pill converted">Converted</span></td>
-                                    <td>
-                                        <div class="assignee">
-                                            <img src="https://i.pravatar.cc/32?u=admin" alt="" width="24" height="24">
-                                            <span>Admin</span>
-                                        </div>
-                                    </td>
-                                    <td><button class="btn-icon-table" title="View details"><i class="fas fa-arrow-right"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="checkbox"></td>
-                                    <td>
-                                        <div class="lead-cell">
-                                            <div class="avatar-sm blue">PK</div>
-                                            <div>
-                                                <p class="lead-name">Priya Kumar</p>
-                                                <p class="lead-email">priya@tech.co</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="domain-pill">E-commerce</span></td>
-                                    <td><span class="date-text">Mar 27, 2026</span></td>
-                                    <td><span class="status-pill new">New</span></td>
-                                    <td>
-                                        <div class="assignee">
-                                            <img src="https://i.pravatar.cc/32?u=sneha" alt="" width="24" height="24">
-                                            <span>Sneha I.</span>
-                                        </div>
-                                    </td>
-                                    <td><button class="btn-icon-table" title="View details"><i class="fas fa-arrow-right"></i></button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </article>
+
+                <article class="metric-card metric-card-highlight">
+                    <div class="metric-copy">
+                        <span>Team pulse</span>
+                        <strong>On track</strong>
+                        <small>Top sources continue outperforming baseline this week.</small>
                     </div>
-                    <div class="table-footer">
-                        <span class="table-info">Showing 1-5 of 2,854</span>
-                        <div class="pagination">
-                            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active">1</button>
-                            <button class="page-btn">2</button>
-                            <button class="page-btn">3</button>
-                            <span class="page-ellipsis">...</span>
-                            <button class="page-btn">12</button>
-                            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                </article>
+            </section>
+
+            <section id="dashboard-error" class="dashboard-error" aria-live="polite"></section>
+
+            <section class="chart-grid">
+                <article class="chart-card chart-card-wide">
+                    <div class="card-heading">
+                        <div>
+                            <span class="section-badge">Trend</span>
+                            <h3>Lead growth</h3>
                         </div>
+                        <p>Daily volume over the last 7 days</p>
                     </div>
-                </div>
-            </div>
+                    <div class="chart-wrap">
+                        <canvas id="lead-growth-chart"></canvas>
+                    </div>
+                </article>
+
+                <article class="chart-card">
+                    <div class="card-heading">
+                        <div>
+                            <span class="section-badge">Channels</span>
+                            <h3>Source breakdown</h3>
+                        </div>
+                        <p>Where your highest-intent leads originate</p>
+                    </div>
+                    <div class="chart-wrap chart-wrap-donut">
+                        <canvas id="source-breakdown-chart"></canvas>
+                    </div>
+                </article>
+            </section>
         </main>
-    </div>
-
-    <!-- Lead Detail Drawer -->
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-    <div class="lead-drawer" id="lead-drawer">
-        <div class="drawer-header">
-            <h3>Lead Details</h3>
-            <button class="btn-icon-close" id="close-drawer"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="drawer-body">
-            <div class="drawer-profile">
-                <div class="drawer-avatar">AJ</div>
-                <h2 id="drawer-name">Alex Johnson</h2>
-                <p id="drawer-email">alex@example.com</p>
-                <span class="status-pill new">New</span>
-            </div>
-            
-            <div class="drawer-info-grid">
-                <div class="info-item">
-                    <label>Domain</label>
-                    <p>Fintech</p>
-                </div>
-                <div class="info-item">
-                    <label>Experience</label>
-                    <p>Mid-Level (3-5 yrs)</p>
-                </div>
-                <div class="info-item">
-                    <label>Assigned To</label>
-                    <p>Vikram Chandra</p>
-                </div>
-                <div class="info-item">
-                    <label>Date Added</label>
-                    <p>Apr 01, 2026</p>
-                </div>
-            </div>
-
-            <div class="drawer-section">
-                <label class="drawer-section-label">Activity Timeline</label>
-                <div class="activity-timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <p class="timeline-text">Lead created via Landing Page</p>
-                            <span class="timeline-time">10:30 AM</span>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <p class="timeline-text">Assigned to Vikram Chandra</p>
-                            <span class="timeline-time">11:15 AM</span>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot success"></div>
-                        <div class="timeline-content">
-                            <p class="timeline-text">Welcome email sent</p>
-                            <span class="timeline-time">11:20 AM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="drawer-footer">
-            <button class="btn btn-outline btn-full">Send Email</button>
-            <button class="btn btn-primary btn-full">Update Status</button>
-        </div>
     </div>
 
     <script src="dashboard.js"></script>

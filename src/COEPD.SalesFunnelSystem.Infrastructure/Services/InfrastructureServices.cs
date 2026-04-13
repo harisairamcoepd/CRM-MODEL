@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
+using System.IO;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -33,6 +35,7 @@ public class JwtTokenService : ITokenService
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(ClaimTypes.Name, user.FullName),
             new(ClaimTypes.Role, user.Role)
@@ -66,6 +69,21 @@ public class EmailAutomationService : IEmailAutomationService
         const string body = "Your demo booking is confirmed. We will share the next steps shortly.";
         var deliveryStatus = await SendEmailAsync(lead.Email, subject, body, cancellationToken);
         _db.EmailAutomationLogs.Add(new EmailAutomationLog { LeadId = lead.Id, TemplateKey = "demo-reminder", Subject = subject, Status = deliveryStatus });
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task TriggerDemoConfirmationAsync(Lead lead, string day, string slot, CancellationToken cancellationToken = default)
+    {
+        var subject = "COEPD demo confirmation";
+        var body = $"Hi {lead.Name}, your demo is confirmed for {day} during the {slot} slot. Our team will connect with you shortly.";
+        var deliveryStatus = await SendEmailAsync(lead.Email, subject, body, cancellationToken);
+        _db.EmailAutomationLogs.Add(new EmailAutomationLog
+        {
+            LeadId = lead.Id,
+            TemplateKey = "demo-confirmation",
+            Subject = subject,
+            Status = deliveryStatus
+        });
         await _db.SaveChangesAsync(cancellationToken);
     }
 
@@ -116,8 +134,19 @@ public class EmailAutomationService : IEmailAutomationService
 
 public class WhatsAppAutomationService : IWhatsAppAutomationService
 {
+    private readonly WhatsAppOptions _options;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ApplicationDbContext _db;
-    public WhatsAppAutomationService(ApplicationDbContext db) => _db = db;
+
+    public WhatsAppAutomationService(
+        IOptions<WhatsAppOptions> options,
+        IHttpClientFactory httpClientFactory,
+        ApplicationDbContext db)
+    {
+        _options = options.Value;
+        _httpClientFactory = httpClientFactory;
+        _db = db;
+    }
 
     public Task SendLeadCapturedMessageAsync(Lead lead, CancellationToken cancellationToken = default) =>
         SendAsync(lead, "lead-captured", $"Hi {lead.Name}, thank you for contacting COEPD about {lead.Domain}.", cancellationToken);
@@ -136,10 +165,33 @@ public class WhatsAppAutomationService : IWhatsAppAutomationService
 
     private async Task SendAsync(Lead lead, string type, string message, CancellationToken cancellationToken)
     {
-        // Simulate WhatsApp API call for reliable local development and deterministic behavior.
-        await Task.Delay(80, cancellationToken);
-        _db.WhatsAppMessageLogs.Add(new WhatsAppMessageLog { LeadId = lead.Id, MessageType = type, Phone = lead.Phone, Status = "Simulated-Sent" });
+        var deliveryStatus = await SendWhatsAppAsync(lead.Phone, message, cancellationToken);
+        _db.WhatsAppMessageLogs.Add(new WhatsAppMessageLog { LeadId = lead.Id, MessageType = type, Phone = lead.Phone, Status = deliveryStatus });
         await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<string> SendWhatsAppAsync(string phone, string message, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(_options.ApiUrl) ||
+            string.IsNullOrWhiteSpace(_options.AccessToken) ||
+            string.IsNullOrWhiteSpace(_options.SenderId))
+        {
+            await Task.Delay(80, cancellationToken);
+            return "Simulated-Sent";
+        }
+
+        var client = _httpClientFactory.CreateClient("whatsapp");
+        using var request = new HttpRequestMessage(HttpMethod.Post, _options.ApiUrl);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.AccessToken);
+        request.Content = new StringContent(JsonSerializer.Serialize(new
+        {
+            senderId = _options.SenderId,
+            recipient = phone,
+            message
+        }), Encoding.UTF8, "application/json");
+
+        using var response = await client.SendAsync(request, cancellationToken);
+        return response.IsSuccessStatusCode ? "Sent" : $"Failed-{(int)response.StatusCode}";
     }
 }
 
@@ -164,7 +216,7 @@ public class StaffNotificationService : IStaffNotificationService
         var users = await _userRepository.GetAllAsync(cancellationToken);
         var recipients = users
             .Where(x => x.IsActive &&
-                        (x.Role == UserRole.Staff || x.Role == UserRole.Admin) &&
+                        x.Role == UserRole.Admin &&
                         !string.IsNullOrWhiteSpace(x.Email))
             .Select(x => x.Email.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -186,10 +238,35 @@ public class StaffNotificationService : IStaffNotificationService
         return recipients.Count;
     }
 
-    private async Task SendInternalNotificationAsync(string recipientEmail, Lead lead, CancellationToken cancellationToken)
+    public async Task NotifyAdminNewLeadAlertAsync(Lead lead, CancellationToken cancellationToken = default)
     {
-        var subject = $"New Lead Alert: {lead.Name} ({lead.Domain})";
-        var body = $"New lead captured. Name: {lead.Name}, Phone: {lead.Phone}, Domain: {lead.Domain}, Source: {lead.Source}.";
+        await NotifyLeadCreatedAsync(lead, cancellationToken);
+    }
+
+    public async Task NotifyStaffLeadAssignedAsync(Lead lead, AppUser staffUser, CancellationToken cancellationToken = default)
+    {
+        if (!staffUser.IsActive || string.IsNullOrWhiteSpace(staffUser.Email))
+        {
+            return;
+        }
+
+        await SendInternalNotificationAsync(
+            staffUser.Email.Trim(),
+            lead,
+            cancellationToken,
+            $"Lead Assigned: {lead.Name} ({lead.Domain})",
+            $"A new lead has been assigned to you. Name: {lead.Name}, Phone: {lead.Phone}, Domain: {lead.Domain}, Source: {lead.Source}.");
+    }
+
+    private async Task SendInternalNotificationAsync(
+        string recipientEmail,
+        Lead lead,
+        CancellationToken cancellationToken,
+        string? subjectOverride = null,
+        string? bodyOverride = null)
+    {
+        var subject = subjectOverride ?? $"New Lead Alert: {lead.Name} ({lead.Domain})";
+        var body = bodyOverride ?? $"New lead captured. Name: {lead.Name}, Phone: {lead.Phone}, Domain: {lead.Domain}, Source: {lead.Source}.";
 
         if (_emailOptions.Provider.Equals("SendGrid", StringComparison.OrdinalIgnoreCase) &&
             !string.IsNullOrWhiteSpace(_emailOptions.SendGridApiKey) &&
@@ -225,13 +302,35 @@ public class StaffNotificationService : IStaffNotificationService
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string contentRootPath)
     {
+        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
         services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
-        var connectionString = NormalizeConnectionString(configuration.GetConnectionString("DefaultConnection"));
-        services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddHttpClient("whatsapp");
+
+        var databaseOptions = configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>() ?? new DatabaseOptions();
+        services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            var provider = (databaseOptions.Provider ?? "Sqlite").Trim();
+            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var connectionString = NormalizeSqlServerConnectionString(
+                    configuration.GetConnectionString("DefaultConnection")
+                    ?? configuration.GetConnectionString("SqlServerConnection"));
+
+                options.UseSqlServer(connectionString, sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(3);
+                });
+                return;
+            }
+
+            var sqliteConnectionString = BuildSqliteConnectionString(databaseOptions, contentRootPath);
+            options.UseSqlite(sqliteConnectionString);
+        });
+
         services.AddScoped<ILeadRepository, LeadRepository>();
         services.AddScoped<IDemoBookingRepository, DemoBookingRepository>();
         services.AddScoped<IFunnelEventRepository, FunnelEventRepository>();
@@ -261,11 +360,30 @@ public static class DependencyInjection
         return services;
     }
 
-    private static string NormalizeConnectionString(string? connectionString)
+    private static string BuildSqliteConnectionString(DatabaseOptions options, string contentRootPath)
+    {
+        var configuredPath = string.IsNullOrWhiteSpace(options.SqlitePath)
+            ? "App_Data/coepd-crm.db"
+            : options.SqlitePath.Trim();
+
+        var fullPath = Path.IsPathRooted(configuredPath)
+            ? configuredPath
+            : Path.GetFullPath(Path.Combine(contentRootPath, configuredPath));
+
+        var directory = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        return $"Data Source={fullPath}";
+    }
+
+    private static string NormalizeSqlServerConnectionString(string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            throw new InvalidOperationException("Connection string 'DefaultConnection' is missing.");
+            throw new InvalidOperationException("A SQL Server connection string is required when Database:Provider is set to SqlServer.");
         }
 
         var normalized = connectionString;

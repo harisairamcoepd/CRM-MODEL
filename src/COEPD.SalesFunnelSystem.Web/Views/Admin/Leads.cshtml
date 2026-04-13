@@ -118,18 +118,15 @@
         select.addEventListener("change", async () => {
             const id = select.dataset.id;
             const status = select.value;
-            const token = "@ViewBag.ApiToken";
-            
-            if (!token) return alert("Auth error");
 
             try {
                 select.disabled = true;
                 const response = await fetch(`/api/leads/${id}/status`, {
                     method: "PUT",
                     headers: { 
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        "Content-Type": "application/json"
                     },
+                    credentials: "same-origin",
                     body: JSON.stringify({ status })
                 });
                 

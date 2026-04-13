@@ -1,5 +1,12 @@
 namespace COEPD.SalesFunnelSystem.Infrastructure.Options;
 
+public class DatabaseOptions
+{
+    public const string SectionName = "Database";
+    public string Provider { get; set; } = "Sqlite";
+    public string SqlitePath { get; set; } = "App_Data/coepd-crm.db";
+}
+
 public class JwtOptions
 {
     public const string SectionName = "Jwt";

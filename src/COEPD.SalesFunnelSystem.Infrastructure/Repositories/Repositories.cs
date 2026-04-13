@@ -27,7 +27,9 @@ public class LeadRepository : ILeadRepository
         _db.Leads.OrderByDescending(x => x.CreatedAt).Select(x => (int?)x.Id).FirstOrDefaultAsync(cancellationToken);
 
     public Task<Lead?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
-        _db.Leads.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        _db.Leads
+            .Include(x => x.AssignedStaff)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<bool> ExistsByEmailOrPhoneAsync(string email, string phone, CancellationToken cancellationToken = default) =>
         _db.Leads.AsNoTracking()
@@ -46,7 +48,10 @@ public class LeadRepository : ILeadRepository
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _db.Leads.AsNoTracking().AsQueryable();
+        var query = _db.Leads
+            .AsNoTracking()
+            .Include(x => x.AssignedStaff)
+            .AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
@@ -81,6 +86,27 @@ public class LeadRepository : ILeadRepository
 
         return await query.ToListAsync(cancellationToken);
     }
+
+    public Task<List<Lead>> GetTodayAsync(CancellationToken cancellationToken = default)
+    {
+        var start = DateTime.UtcNow.Date;
+        var end = start.AddDays(1);
+        return _db.Leads.AsNoTracking()
+            .Include(x => x.AssignedStaff)
+            .Where(x => x.CreatedAt >= start && x.CreatedAt < end)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<List<Lead>> GetAssignedToStaffAsync(int staffId, CancellationToken cancellationToken = default) =>
+        _db.Leads.AsNoTracking()
+            .Include(x => x.AssignedStaff)
+            .Where(x => x.AssignedStaffId == staffId)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+    public Task<int> CountAssignedToStaffAsync(int staffId, CancellationToken cancellationToken = default) =>
+        _db.Leads.AsNoTracking().CountAsync(x => x.AssignedStaffId == staffId, cancellationToken);
 
     public async Task DeleteAsync(Lead lead, CancellationToken cancellationToken = default)
     {

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COEPD AI Funnel OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="landing.css" />
+</head>
+<body data-api-base="">
+<div class="landing-shell">
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header" id="top">
+        <div class="container">
+            <nav class="navbar card" aria-label="Main navigation">
+                <a href="#top" class="brand" aria-label="COEPD AI Funnel OS home">
+                    <span class="brand-mark">C</span>
+                    <span class="brand-text">COEPD AI Funnel OS</span>
+                </a>
+
+                <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <div class="nav-links" id="primary-nav">
+                    <a href="#trust">Trust</a>
+                    <a href="#problem-solution">How It Works</a>
+                    <a href="blog-automation.html" target="_blank" rel="noopener noreferrer">Blog: Funnel Guide</a>
+                    <a href="#demo-cta">Book Demo</a>
+                    <a href="#testimonials">Testimonials</a>
+                    <a class="btn btn-primary nav-cta" href="#demo-cta">Start Funnel</a>
+                </div>
+            </nav>
+
+            <section class="hero section" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <span class="eyebrow">Admissions CRM for high-intent growth teams</span>
+                    <h1 id="hero-title">A clean SaaS funnel that captures leads, books demos, and routes sales-ready prospects automatically.</h1>
+                    <p class="hero-lead">
+                        COEPD AI Funnel OS turns your landing page into a full CRM entry point with lead capture, qualification, demo booking,
+                        dashboards, and automation-ready workflows built in.
+                    </p>
+
+                    <div class="hero-ctas">
+                        <a href="#demo-cta" class="btn btn-primary btn-lg">Book Demo</a>
+                        <a href="#problem-solution" class="btn btn-secondary btn-lg">See the Funnel</a>
+                    </div>
+
+                    <div class="hero-inline-stats">
+                        <article class="hero-inline-card">
+                            <strong id="hero-total-leads">0</strong>
+                            <span>Total leads captured</span>
+                        </article>
+                        <article class="hero-inline-card">
+                            <strong id="hero-demo-bookings">0</strong>
+                            <span>Demo bookings created</span>
+                        </article>
+                        <article class="hero-inline-card">
+                            <strong id="hero-conversion-rate">0%</strong>
+                            <span>Conversion rate snapshot</span>
+                        </article>
+                    </div>
+                </div>
+
+                <aside class="hero-panel card" aria-label="CRM funnel preview">
+                    <div class="panel-head">
+                        <span class="panel-pill">Live Funnel Snapshot</span>
+                        <span class="panel-note">Same APIs powering the admin dashboard</span>
+                    </div>
+
+                    <div class="panel-kpis">
+                        <article class="kpi card-soft">
+                            <p>Today Leads</p>
+                            <strong id="hero-today-leads">0</strong>
+                        </article>
+                        <article class="kpi card-soft">
+                            <p>This Month</p>
+                            <strong id="hero-month-leads">0</strong>
+                        </article>
+                        <article class="kpi card-soft">
+                            <p>Weekly Growth</p>
+                            <strong id="hero-weekly-growth">0%</strong>
+                        </article>
+                    </div>
+
+                    <div class="pipeline card-soft">
+                        <h2>Funnel highlights</h2>
+                        <ul>
+                            <li><span>Lead capture via form or chatbot</span><b>Unified</b></li>
+                            <li><span>Auto assignment + notifications</span><b>Enabled</b></li>
+                            <li><span>Demo booking + confirmations</span><b>Live</b></li>
+                            <li><span>Dashboard analytics + charts</span><b>Real-time</b></li>
+                        </ul>
+                    </div>
+                </aside>
+            </section>
+        </div>
+    </header>
+
+    <main>
+        <section id="trust" class="section trust">
+            <div class="container">
+                <div class="section-head centered">
+                    <span class="eyebrow">Trust signals</span>
+                    <h2>Built like a SaaS funnel, not a cluttered brochure page</h2>
+                    <p>
+                        Clean conversion paths, zero overlapping UI, and one connected data layer from public landing page to staff pipeline.
+                    </p>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat card">
+                        <strong id="trust-total-leads">0</strong>
+                        <p>Total leads captured inside the CRM</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-today-leads">0</strong>
+                        <p>Fresh inbound leads today</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-total-bookings">0</strong>
+                        <p>Demos booked through the funnel</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-conversion-count">0</strong>
+                        <p>Converted leads tracked in the system</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="problem-solution" class="section problem-solution">
+            <div class="container split-layout">
+                <article class="problem card">
+                    <span class="eyebrow">Problem</span>
+                    <h2>Messy CRM pages create friction before your team can even respond.</h2>
+                    <ul>
+                        <li>Overlapping widgets and duplicate forms confuse visitors and lower lead quality.</li>
+                        <li>Too many visible domains clutter the page and bury the main call to action.</li>
+                        <li>Disconnected lead, demo, and chatbot flows leave staff without one reliable source of truth.</li>
+                    </ul>
+                </article>
+
+                <article class="solution card">
+                    <span class="eyebrow">Solution</span>
+                    <h2>One conversion funnel with a single CRM data path from interest to demo.</h2>
+                    <div class="solution-cards">
+                        <section class="card-soft feature">
+                            <h3>Capture</h3>
+                            <p>Use one primary conversion form on the page, with the chatbot as a guided alternative instead of a competing widget.</p>
+                        </section>
+                        <section class="card-soft feature">
+                            <h3>Qualify</h3>
+                            <p>Route leads into the right domain, staff assignment, and follow-up logic the moment they enter the funnel.</p>
+                        </section>
+                        <section class="card-soft feature">
+                            <h3>Convert</h3>
+                            <p>Turn captured leads into booked demos with availability checks, confirmations, and live admin reporting.</p>
+                        </section>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="domain-explorer" class="section domain-explorer">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Domain explorer</span>
+                    <h2>Reduce clutter while still letting visitors discover the right path</h2>
+                    <p>Featured tracks stay visible, and the rest of the catalog is available through search and filters instead of overwhelming the page.</p>
+                </div>
+
+                <div class="domain-browser card">
+                    <div class="domain-browser-toolbar">
+                        <label class="search-shell" for="domain-search">
+                            <span>Search domain</span>
+                            <input id="domain-search" type="search" placeholder="Search Business Analysis, Analytics, Product, CRM..." />
+                        </label>
+
+                        <div class="filter-row" role="group" aria-label="Domain categories">
+                            <button class="filter-btn is-active" type="button" data-filter="all">All</button>
+                            <button class="filter-btn" type="button" data-filter="Business Analysis">Business Analysis</button>
+                            <button class="filter-btn" type="button" data-filter="Analytics">Analytics</button>
+                            <button class="filter-btn" type="button" data-filter="Product & Delivery">Product & Delivery</button>
+                            <button class="filter-btn" type="button" data-filter="Technology">Technology</button>
+                        </div>
+                    </div>
+
+                    <div class="domain-browser-summary">
+                        <span id="domain-results-summary">0 domains shown</span>
+                        <button id="domain-clear" type="button" class="btn btn-secondary btn-sm" hidden>Clear filters</button>
+                    </div>
+
+                    <div id="domain-grid" class="domain-grid" aria-live="polite"></div>
+
+                    <div class="domain-load-more">
+                        <button id="domain-load-more" type="button" class="btn btn-secondary">Load more domains</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo-cta" class="section demo">
+            <div class="container">
+                <div class="demo-card card">
+                    <div class="demo-copy">
+                        <span class="eyebrow">Demo booking funnel</span>
+                        <h2>Capture a lead once. Book the demo in the same guided flow.</h2>
+                        <p>
+                            This is the primary on-page conversion path. We keep one visible form experience, then unlock the booking step after the lead is saved.
+                        </p>
+
+                        <ul class="demo-points">
+                            <li>Lead capture posts directly to the CRM API</li>
+                            <li>Demo slots are checked for availability before booking</li>
+                            <li>WhatsApp, email, admin alerts, and staff assignment can trigger automatically</li>
+                        </ul>
+
+                        <div id="lead-state-card" class="lead-state card-soft" data-locked="true">
+                            <span class="lead-state-label">Current status</span>
+                            <strong id="lead-state-title">Lead capture required</strong>
+                            <p id="lead-state-copy">Complete step one to unlock demo booking with the new Lead ID connected automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="demo-workflow card-soft">
+                        <div class="stepper" aria-label="Lead capture steps">
+                            <span class="step-chip is-active" data-step-chip="lead">1. Lead</span>
+                            <span class="step-chip" data-step-chip="demo">2. Demo</span>
+                        </div>
+
+                        <section id="lead-step" class="workflow-step">
+                            <div class="workflow-head">
+                                <h3>Step 1. Create lead</h3>
+                                <p>Collect the core CRM fields once, then continue straight to demo booking.</p>
+                            </div>
+
+                            <form id="lead-capture-form" class="stack-form" novalidate>
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Full Name</span>
+                                        <input name="name" type="text" placeholder="John Doe" required maxlength="120" />
+                                    </label>
+                                    <label>
+                                        <span>Phone</span>
+                                        <input name="phone" type="tel" placeholder="+91 9876543210" required maxlength="20" />
+                                    </label>
+                                    <label>
+                                        <span>Email</span>
+                                        <input name="email" type="email" placeholder="john@company.com" required maxlength="150" />
+                                    </label>
+                                    <label>
+                                        <span>Location</span>
+                                        <input name="location" type="text" placeholder="Hyderabad" required maxlength="120" />
+                                    </label>
+                                </div>
+
+                                <label>
+                                    <span>Interested Domain</span>
+                                    <select id="lead-domain" name="domain" required>
+                                        <option value="">Select a domain</option>
+                                        <option value="Business Analysis">Business Analysis</option>
+                                        <option value="Healthcare BA">Healthcare BA</option>
+                                        <option value="Data Analytics">Data Analytics</option>
+                                        <option value="Power BI">Power BI</option>
+                                        <option value="Product Management">Product Management</option>
+                                        <option value="Agile & Scrum">Agile & Scrum</option>
+                                        <option value="Salesforce">Salesforce</option>
+                                        <option value="Generative AI">Generative AI</option>
+                                    </select>
+                                </label>
+
+                                <div class="form-actions">
+                                    <button id="lead-submit" type="submit" class="btn btn-primary">Create Lead And Continue</button>
+                                    <span id="lead-form-status" class="form-status" aria-live="polite"></span>
+                                </div>
+                            </form>
+                        </section>
+
+                        <section id="demo-step" class="workflow-step is-hidden" aria-hidden="true">
+                            <div class="workflow-head">
+                                <h3>Step 2. Book demo</h3>
+                                <p>Your lead is already saved. Choose a preferred date and time slot to complete the funnel.</p>
+                            </div>
+
+                            <form id="demo-booking-form" class="stack-form" novalidate>
+                                <input id="demo-lead-id" name="leadId" type="hidden" />
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Preferred Date</span>
+                                        <input id="demo-date" name="date" type="date" required />
+                                    </label>
+                                    <label>
+                                        <span>Time Slot</span>
+                                        <select id="demo-time-slot" name="timeSlot" required>
+                                            <option value="">Select a slot</option>
+                                            <option value="Morning">Morning</option>
+                                            <option value="Afternoon">Afternoon</option>
+                                            <option value="Evening">Evening</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div id="availability-status" class="availability-status" aria-live="polite"></div>
+
+                                <div class="form-actions">
+                                    <button id="demo-submit" type="submit" class="btn btn-primary">Confirm Demo</button>
+                                    <span id="demo-form-status" class="form-status" aria-live="polite"></span>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="section testimonials">
+            <div class="container">
+                <div class="section-head centered">
+                    <span class="eyebrow">Testimonials</span>
+                    <h2>Teams using this funnel spend less time coordinating and more time converting.</h2>
+                </div>
+
+                <div class="testimonial-grid">
+                    <article class="testimonial card">
+                        <p>"We replaced a cluttered admissions page with one guided funnel and immediately improved demo intent quality."</p>
+                        <div class="author">
+                            <strong>Ritika Sharma</strong>
+                            <span>Head of Admissions, NorthEdge Academy</span>
+                        </div>
+                    </article>
+
+                    <article class="testimonial card">
+                        <p>"The chatbot now feels helpful instead of intrusive, and our mobile conversion flow finally behaves the same as desktop."</p>
+                        <div class="author">
+                            <strong>Daniel Reed</strong>
+                            <span>Growth Lead, FutureSkills</span>
+                        </div>
+                    </article>
+
+                    <article class="testimonial card">
+                        <p>"Lead capture, staff assignment, booking, and follow-up all sit on one backend now. Our team works from one system instead of three."</p>
+                        <div class="author">
+                            <strong>Meera Iyer</strong>
+                            <span>Director, Elevate Learning</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section final-cta">
+            <div class="container">
+                <div class="final-cta-card card">
+                    <div>
+                        <span class="eyebrow">Final call to action</span>
+                        <h2>Launch a cleaner CRM funnel that actually connects to your backend.</h2>
+                        <p>Use the on-page flow or open the chatbot to create a lead, book a demo, and push real data into the CRM immediately.</p>
+                    </div>
+                    <div class="final-cta-actions">
+                        <a href="#demo-cta" class="btn btn-primary btn-lg">Start The Funnel</a>
+                        <a href="http://localhost:8000/docs" class="btn btn-secondary btn-lg">Open API Docs</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>&copy; 2026 COEPD AI Funnel OS. Clean UI, connected CRM workflows, and production-ready lead operations.</p>
+        </div>
+    </footer>
+
+    <div class="chatbot" aria-live="polite">
+        <button id="chatbot-toggle" class="chatbot-toggle" type="button" aria-expanded="false" aria-controls="chatbot-panel" aria-label="Open chatbot">
+            <span>Chat</span>
+        </button>
+
+        <section id="chatbot-panel" class="chatbot-panel card" aria-label="Lead capture assistant" hidden>
+            <header class="chatbot-head">
+                <div>
+                    <strong>COEPD Assistant</strong>
+                    <span>Lead capture and demo booking</span>
+                </div>
+                <button id="chatbot-close" type="button" aria-label="Close chatbot">x</button>
+            </header>
+
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="msg bot">Welcome to COEPD AI Funnel OS. I can capture your details and book a demo in under 2 minutes.</div>
+            </div>
+
+            <div id="chatbot-quick-replies" class="chatbot-quick-replies"></div>
+
+            <form id="chatbot-form" class="chatbot-input" autocomplete="off">
+                <input id="chatbot-text" type="text" placeholder="Type your message" maxlength="240" required />
+                <button type="submit" aria-label="Send message">Send</button>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script>
+window.coepdDomainCatalog = [
+    { name: "Business Analysis", category: "Business Analysis", description: "Learn how Business Analysis teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Healthcare BA", category: "Business Analysis", description: "Learn how Healthcare BA teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Banking BA", category: "Business Analysis", description: "Learn how Banking BA teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Insurance BA", category: "Business Analysis", description: "Learn how Insurance BA teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Retail BA", category: "Business Analysis", description: "Learn how Retail BA teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Supply Chain BA", category: "Business Analysis", description: "Learn how Supply Chain BA teams capture requirements, align stakeholders, and drive transformation initiatives." },
+    { name: "Data Analytics", category: "Analytics", description: "Build practical Data Analytics skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Power BI", category: "Analytics", description: "Build practical Power BI skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Tableau", category: "Analytics", description: "Build practical Tableau skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "SQL", category: "Analytics", description: "Build practical SQL skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Python", category: "Analytics", description: "Build practical Python skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Business Intelligence", category: "Analytics", description: "Build practical Business Intelligence skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Financial Analysis", category: "Analytics", description: "Build practical Financial Analysis skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Risk Analysis", category: "Analytics", description: "Build practical Risk Analysis skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Fraud Analytics", category: "Analytics", description: "Build practical Fraud Analytics skills with hands-on reporting, insights, dashboards, and decision-making workflows." },
+    { name: "Product Management", category: "Product & Delivery", description: "Explore Product Management with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Agile & Scrum", category: "Product & Delivery", description: "Explore Agile & Scrum with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Project Management", category: "Product & Delivery", description: "Explore Project Management with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "AI Product Management", category: "Product & Delivery", description: "Explore AI Product Management with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Growth Analytics", category: "Product & Delivery", description: "Explore Growth Analytics with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Dashboard Design", category: "Product & Delivery", description: "Explore Dashboard Design with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Data Storytelling", category: "Product & Delivery", description: "Explore Data Storytelling with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Requirements Engineering", category: "Product & Delivery", description: "Explore Requirements Engineering with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Use Case Modeling", category: "Product & Delivery", description: "Explore Use Case Modeling with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "User Story Writing", category: "Product & Delivery", description: "Explore User Story Writing with mentor support, market-ready frameworks, and portfolio-focused execution." },
+    { name: "Salesforce", category: "Specialized", description: "See how our Salesforce pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "SAP", category: "Specialized", description: "See how our SAP pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "ERP", category: "Specialized", description: "See how our ERP pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "CRM", category: "Specialized", description: "See how our CRM pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "HubSpot CRM", category: "Specialized", description: "See how our HubSpot CRM pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "Zoho CRM", category: "Specialized", description: "See how our Zoho CRM pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "Dynamics 365", category: "Specialized", description: "See how our Dynamics 365 pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "Generative AI", category: "Specialized", description: "See how our Generative AI pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "Prompt Engineering", category: "Specialized", description: "See how our Prompt Engineering pathway fits your current background, growth goals, and live hiring demand." },
+    { name: "Cloud Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Cloud Fundamentals programs and roles." },
+    { name: "QA Testing", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in QA Testing programs and roles." },
+    { name: "Automation Testing", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Automation Testing programs and roles." },
+    { name: "DevOps Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in DevOps Fundamentals programs and roles." },
+    { name: "Cybersecurity Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Cybersecurity Fundamentals programs and roles." },
+    { name: "Cloud BA", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Cloud BA programs and roles." },
+    { name: "AWS Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in AWS Fundamentals programs and roles." },
+    { name: "Azure Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Azure Fundamentals programs and roles." },
+    { name: "Google Cloud Fundamentals", category: "Technology", description: "Understand the delivery patterns, tools, and modern workflows used in Google Cloud Fundamentals programs and roles." }
+];
+</script>
+<script src="landing.js"></script>
+</body>
+</html>

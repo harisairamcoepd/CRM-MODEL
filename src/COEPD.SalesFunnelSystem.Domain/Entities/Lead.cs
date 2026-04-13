@@ -14,7 +14,13 @@ public class Lead : BaseEntity
     public string Score { get; set; } = LeadScores.Warm;
     public string? Notes { get; set; }
     public string FunnelStage { get; set; } = FunnelStages.New;
+    public DateTime StageEnteredAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime? FirstRespondedAtUtc { get; set; }
+    public int? AssignedStaffId { get; set; }
+    public AppUser? AssignedStaff { get; set; }
     public ICollection<DemoBooking> DemoBookings { get; set; } = new List<DemoBooking>();
+    public ICollection<LeadActivityLog> Activities { get; set; } = new List<LeadActivityLog>();
+    public ICollection<LeadStageTransition> StageTransitions { get; set; } = new List<LeadStageTransition>();
 }
 
 public static class LeadStatuses

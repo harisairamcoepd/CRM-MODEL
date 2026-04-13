@@ -1,0 +1,293 @@
+@* // INTEGRATION NOTE
+   // Drop this partial into any Razor view: @await Html.PartialAsync("_StatsBar")
+   // It fetches live data from GET /api/stats/summary on page load.
+   // If that endpoint has not been implemented yet, it automatically falls back to a mock payload so the widget still renders.
+   // Styling uses CSS variables first, so it inherits your existing theme without requiring a separate stylesheet. *@
+@using System.Text.Json
+@using COEPD.SalesFunnelSystem.Application.DTOs
+@model StatsSummaryWidgetDto?
+@{
+    var componentId = $"statsbar-{Guid.NewGuid():N}";
+    var fallbackPayload = Model ?? new StatsSummaryWidgetDto
+    {
+        TotalLeads = 1480,
+        DemosBooked = 214,
+        Converted = 88,
+        AvgResponseTimeMinutes = 43.5,
+        TotalLeadsTrend = new StatTrendDto { Direction = "up", PercentageDelta = 12.4m, Label = "vs last week" },
+        DemosBookedTrend = new StatTrendDto { Direction = "up", PercentageDelta = 8.1m, Label = "vs last week" },
+        ConvertedTrend = new StatTrendDto { Direction = "up", PercentageDelta = 5.9m, Label = "vs last week" },
+        AvgResponseTimeTrend = new StatTrendDto { Direction = "down", PercentageDelta = 14.2m, Label = "faster than last week" }
+    };
+
+    var fallbackJson = JsonSerializer.Serialize(fallbackPayload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+}
+
+<section class="crm-statsbar" id="@componentId">
+    <div class="crm-statsbar-grid">
+        <article class="crm-stat-card" data-stat-card data-key="totalLeads">
+            <div class="crm-stat-icon"><i data-lucide="users"></i></div>
+            <div class="crm-stat-copy">
+                <span class="crm-stat-label">Total Leads</span>
+                <strong class="crm-stat-value" data-stat-value>0</strong>
+                <div class="crm-stat-trend" data-stat-trend>
+                    <i data-lucide="trending-up"></i>
+                    <span>0% vs last week</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="crm-stat-card" data-stat-card data-key="demosBooked">
+            <div class="crm-stat-icon"><i data-lucide="calendar-check-2"></i></div>
+            <div class="crm-stat-copy">
+                <span class="crm-stat-label">Demos Booked</span>
+                <strong class="crm-stat-value" data-stat-value>0</strong>
+                <div class="crm-stat-trend" data-stat-trend>
+                    <i data-lucide="trending-up"></i>
+                    <span>0% vs last week</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="crm-stat-card" data-stat-card data-key="converted">
+            <div class="crm-stat-icon"><i data-lucide="badge-check"></i></div>
+            <div class="crm-stat-copy">
+                <span class="crm-stat-label">Converted</span>
+                <strong class="crm-stat-value" data-stat-value>0</strong>
+                <div class="crm-stat-trend" data-stat-trend>
+                    <i data-lucide="trending-up"></i>
+                    <span>0% vs last week</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="crm-stat-card" data-stat-card data-key="avgResponseTimeMinutes">
+            <div class="crm-stat-icon"><i data-lucide="timer-reset"></i></div>
+            <div class="crm-stat-copy">
+                <span class="crm-stat-label">Avg Response Time</span>
+                <strong class="crm-stat-value" data-stat-value>0m</strong>
+                <div class="crm-stat-trend" data-stat-trend>
+                    <i data-lucide="trending-down"></i>
+                    <span>0% vs last week</span>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<style>
+    #@componentId {
+        --stats-surface: var(--card-bg, rgba(255, 255, 255, 0.94));
+        --stats-border: var(--border, rgba(148, 163, 184, 0.2));
+        --stats-text: var(--text-primary, #0f172a);
+        --stats-muted: var(--text-secondary, #64748b);
+        --stats-up: var(--success, #16a34a);
+        --stats-down: var(--danger, #dc2626);
+        --stats-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+    }
+
+    #@componentId .crm-statsbar-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    #@componentId .crm-stat-card {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 1.05rem 1.1rem;
+        border-radius: 22px;
+        border: 1px solid var(--stats-border);
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 32%),
+            var(--stats-surface);
+        box-shadow: var(--stats-shadow);
+    }
+
+    #@componentId .crm-stat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.06);
+        color: var(--stats-text);
+        flex-shrink: 0;
+    }
+
+    #@componentId .crm-stat-copy {
+        min-width: 0;
+    }
+
+    #@componentId .crm-stat-label {
+        display: block;
+        margin-bottom: 0.2rem;
+        color: var(--stats-muted);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    #@componentId .crm-stat-value {
+        display: block;
+        color: var(--stats-text);
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        line-height: 1;
+    }
+
+    #@componentId .crm-stat-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.55rem;
+        color: var(--stats-muted);
+        font-size: 0.84rem;
+        font-weight: 600;
+    }
+
+    #@componentId .crm-stat-trend.is-up {
+        color: var(--stats-up);
+    }
+
+    #@componentId .crm-stat-trend.is-down {
+        color: var(--stats-down);
+    }
+
+    @@media (max-width: 1100px) {
+        #@componentId .crm-statsbar-grid {
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+    }
+
+    @@media (max-width: 640px) {
+        #@componentId .crm-statsbar-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const root = document.getElementById("@componentId");
+        if (!root || root.dataset.initialized === "true") {
+            return;
+        }
+
+        root.dataset.initialized = "true";
+        const fallbackPayload = @Html.Raw(fallbackJson);
+
+        function ensureScript(src) {
+            return new Promise((resolve, reject) => {
+                const existing = Array.from(document.scripts).find(script => script.src === src);
+                if (existing) {
+                    if (existing.dataset.loaded === "true") {
+                        resolve();
+                        return;
+                    }
+
+                    existing.addEventListener("load", () => resolve(), { once: true });
+                    existing.addEventListener("error", reject, { once: true });
+                    return;
+                }
+
+                const script = document.createElement("script");
+                script.src = src;
+                script.async = true;
+                script.addEventListener("load", () => {
+                    script.dataset.loaded = "true";
+                    resolve();
+                }, { once: true });
+                script.addEventListener("error", reject, { once: true });
+                document.head.appendChild(script);
+            });
+        }
+
+        async function getStatsSummary() {
+            try {
+                const response = await fetch("/api/stats/summary", {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Stats summary endpoint returned ${response.status}.`);
+                }
+
+                return await response.json();
+            } catch {
+                return fallbackPayload;
+            }
+        }
+
+        function formatMetric(key, value) {
+            if (key === "avgResponseTimeMinutes") {
+                return `${value.toFixed(0)}m`;
+            }
+
+            return Math.round(value).toLocaleString();
+        }
+
+        function renderTrend(container, trend) {
+            const direction = trend?.direction === "down" ? "down" : "up";
+            container.classList.toggle("is-up", direction === "up");
+            container.classList.toggle("is-down", direction === "down");
+            const icon = container.querySelector("i");
+            const span = container.querySelector("span");
+            icon.setAttribute("data-lucide", direction === "down" ? "trending-down" : "trending-up");
+            span.textContent = `${Math.abs(Number(trend?.percentageDelta || 0)).toFixed(1)}% ${trend?.label || "vs last week"}`;
+        }
+
+        function animateValue(node, key, targetValue, durationMs) {
+            const startedAt = performance.now();
+
+            function frame(now) {
+                const progress = Math.min((now - startedAt) / durationMs, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const value = targetValue * eased;
+                node.textContent = formatMetric(key, value);
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(frame);
+                }
+            }
+
+            window.requestAnimationFrame(frame);
+        }
+
+        Promise.all([
+            ensureScript("https://unpkg.com/lucide@latest")
+        ]).then(async () => {
+            const payload = await getStatsSummary();
+            const cards = Array.from(root.querySelectorAll("[data-stat-card]"));
+
+            cards.forEach(card => {
+                const key = card.dataset.key;
+                const valueNode = card.querySelector("[data-stat-value]");
+                const trendNode = card.querySelector("[data-stat-trend]");
+                const value = Number(payload[key] ?? 0);
+                const trend = payload[`${key}Trend`] || { direction: "up", percentageDelta: 0, label: "vs last week" };
+
+                animateValue(valueNode, key, value, 1200);
+                renderTrend(trendNode, trend);
+            });
+
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons({
+                    attrs: {
+                        width: 18,
+                        height: 18,
+                        strokeWidth: 2
+                    }
+                });
+            }
+        }).catch(error => {
+            console.error("Stats bar failed to initialize.", error);
+        });
+    })();
+</script>

@@ -20,6 +20,9 @@ public interface ILeadRepository
         int? pageNumber,
         int? pageSize,
         CancellationToken cancellationToken = default);
+    Task<List<Lead>> GetTodayAsync(CancellationToken cancellationToken = default);
+    Task<List<Lead>> GetAssignedToStaffAsync(int staffId, CancellationToken cancellationToken = default);
+    Task<int> CountAssignedToStaffAsync(int staffId, CancellationToken cancellationToken = default);
     Task DeleteAsync(Lead lead, CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
     Task<int> CountTodayAsync(CancellationToken cancellationToken = default);
@@ -81,8 +84,11 @@ public interface ILeadService
 {
     Task<LeadResponse> CreateAsync(CreateLeadRequest request, CancellationToken cancellationToken = default);
     Task<List<LeadResponse>> GetAllAsync(LeadFilterRequest filter, CancellationToken cancellationToken = default);
+    Task<List<LeadResponse>> GetTodayAsync(CancellationToken cancellationToken = default);
+    Task<List<LeadResponse>> GetAssignedAsync(int staffId, CancellationToken cancellationToken = default);
     Task<LeadResponse> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<UpdateLeadStatusResponse> UpdateStatusAsync(int id, UpdateLeadStatusRequest request, CancellationToken cancellationToken = default);
+    Task<LeadAssignmentResponse> AssignLeadAsync(int leadId, int staffId, CancellationToken cancellationToken = default);
     Task<PipelineBoardResponse> GetPipelineAsync(LeadFilterRequest filter, CancellationToken cancellationToken = default);
     Task<UpdateLeadStatusResponse> MoveToStageAsync(int id, MoveLeadStageRequest request, CancellationToken cancellationToken = default);
     Task DeleteAsync(int id, CancellationToken cancellationToken = default);
@@ -109,7 +115,8 @@ public interface IAuthService
 public interface IAnalyticsService
 {
     Task<DashboardStatsResponse> GetStatsAsync(CancellationToken cancellationToken = default);
-    Task<List<LeadGrowthPoint>> GetLeadGrowthAsync(CancellationToken cancellationToken = default);
+    Task<LeadStatsResponse> GetLeadStatsAsync(CancellationToken cancellationToken = default);
+    Task<List<LeadGrowthPoint>> GetLeadGrowthAsync(int days = 7, CancellationToken cancellationToken = default);
     Task<LeadAnalyticsResponse> GetLeadAnalyticsAsync(CancellationToken cancellationToken = default);
     void InvalidateDashboardCache();
 }
@@ -126,6 +133,7 @@ public interface IEmailAutomationService
 {
     Task TriggerWelcomeSequenceAsync(Lead lead, CancellationToken cancellationToken = default);
     Task TriggerDemoReminderAsync(Lead lead, CancellationToken cancellationToken = default);
+    Task TriggerDemoConfirmationAsync(Lead lead, string day, string slot, CancellationToken cancellationToken = default);
     Task TriggerLeadFollowUpAsync(Lead lead, string followUpType, CancellationToken cancellationToken = default);
 }
 
@@ -139,6 +147,8 @@ public interface IWhatsAppAutomationService
 public interface IStaffNotificationService
 {
     Task<int> NotifyLeadCreatedAsync(Lead lead, CancellationToken cancellationToken = default);
+    Task NotifyAdminNewLeadAlertAsync(Lead lead, CancellationToken cancellationToken = default);
+    Task NotifyStaffLeadAssignedAsync(Lead lead, AppUser staffUser, CancellationToken cancellationToken = default);
 }
 
 public interface IMarketingAutomationService

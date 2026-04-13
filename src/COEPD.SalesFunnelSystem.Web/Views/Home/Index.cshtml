@@ -1,337 +1,415 @@
+@using System.Text.Json
+@model COEPD.SalesFunnelSystem.Web.ViewModels.LandingPageViewModel
 @{
-    var domains = ViewBag.Domains as string[] ?? Array.Empty<string>();
+    Layout = "_PublicFunnelLayout";
+    var featuredDomainOptions = Model.FeaturedDomains.Take(8).ToList();
+    var domainJson = JsonSerializer.Serialize(Model.Domains);
 }
 
-<!-- ====== HERO ====== -->
-<section class="hero-premium">
-    <div class="hero-bg-layer">
-        <div class="hero-gradient-orb hero-orb-1"></div>
-        <div class="hero-gradient-orb hero-orb-2"></div>
-        <div class="hero-gradient-orb hero-orb-3"></div>
-        <canvas id="hero-particles" class="hero-particles"></canvas>
-        <div class="hero-grid-lines"></div>
-    </div>
-    <div class="hero-inner">
-        <div class="hero-content">
-            <div class="hero-eyebrow">
-                <span class="eyebrow-dot"></span>
-                <span>AI-powered admissions growth engine</span>
-            </div>
-            <h1 class="hero-headline">
-                Turn every enquiry into a
-                <span class="gradient-text">qualified conversation</span>,
-                demo, and enrollment-ready lead.
-            </h1>
-            <p class="hero-lead">COEPD Funnel OS combines lead capture, demo scheduling, counselor visibility, and automation in one polished admissions workflow.</p>
-            <div class="hero-cta-group">
-                <a href="#lead-form" class="btn btn-primary btn-glow">
-                    <span>Talk to Advisor</span>
-                    <i class="fas fa-arrow-right btn-icon-animated"></i>
+<div class="landing-shell">
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header" id="top">
+        <div class="container">
+            <nav class="navbar card" aria-label="Main navigation">
+                <a href="#top" class="brand" aria-label="COEPD AI Funnel OS home">
+                    <span class="brand-mark">C</span>
+                    <span class="brand-text">COEPD AI Funnel OS</span>
                 </a>
-                <a href="#demo-booking" class="btn btn-glass">
-                    <i class="fas fa-play-circle"></i>
-                    <span>Book Free Demo</span>
-                </a>
-            </div>
-            <div class="hero-trust-strip">
-                <div class="trust-logos">
-                    <div class="trust-avatars">
-                        <span class="trust-avatar" style="background:#2563EB">A</span>
-                        <span class="trust-avatar" style="background:#7C3AED">R</span>
-                        <span class="trust-avatar" style="background:#06B6D4">S</span>
-                        <span class="trust-avatar" style="background:#10B981">M</span>
-                        <span class="trust-avatar trust-avatar-count">+2.7k</span>
+
+                <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <div class="nav-links" id="primary-nav">
+                    <a href="#trust">Trust</a>
+                    <a href="#problem-solution">How It Works</a>
+                    <a href="/blog-automation.html" target="_blank" rel="noopener noreferrer">Blog: Funnel Guide</a>
+                    <a href="#domain-explorer">Domains</a>
+                    <a href="#demo-cta">Book Demo</a>
+                    <a href="#testimonials">Testimonials</a>
+                    <a class="btn btn-primary nav-cta" href="#demo-cta">Start Funnel</a>
+                </div>
+            </nav>
+
+            <section class="hero section" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <span class="eyebrow">Admissions CRM for high-intent growth teams</span>
+                    <h1 id="hero-title">A clean SaaS funnel that captures leads, books demos, and routes sales-ready prospects automatically.</h1>
+                    <p class="hero-lead">
+                        COEPD AI Funnel OS turns your landing page into a full CRM entry point with lead capture, qualification, demo booking,
+                        dashboards, and automation-ready workflows built in.
+                    </p>
+
+                    <div class="hero-ctas">
+                        <a href="#demo-cta" class="btn btn-primary btn-lg">Book Demo</a>
+                        <a href="#problem-solution" class="btn btn-secondary btn-lg">See the Funnel</a>
                     </div>
-                    <span class="trust-label"><strong>2,700+</strong> hiring partners trust COEPD</span>
+
+                    <div class="hero-inline-stats">
+                        <article class="hero-inline-card">
+                            <strong id="hero-total-leads">0</strong>
+                            <span>Total leads captured</span>
+                        </article>
+                        <article class="hero-inline-card">
+                            <strong id="hero-demo-bookings">0</strong>
+                            <span>Demo bookings created</span>
+                        </article>
+                        <article class="hero-inline-card">
+                            <strong id="hero-conversion-rate">0%</strong>
+                            <span>Conversion rate snapshot</span>
+                        </article>
+                    </div>
                 </div>
-                <div class="trust-divider"></div>
-                <div class="trust-badges">
-                    <div class="trust-badge"><i class="fas fa-shield-halved"></i> SOC2 Compliant</div>
-                    <div class="trust-badge"><i class="fas fa-bolt"></i> 99.9% Uptime</div>
-                </div>
-            </div>
+
+                <aside class="hero-panel card" aria-label="CRM funnel preview">
+                    <div class="panel-head">
+                        <span class="panel-pill">Live Funnel Snapshot</span>
+                        <span class="panel-note">Same APIs powering the admin dashboard</span>
+                    </div>
+
+                    <div class="panel-kpis">
+                        <article class="kpi card-soft">
+                            <p>Today Leads</p>
+                            <strong id="hero-today-leads">0</strong>
+                        </article>
+                        <article class="kpi card-soft">
+                            <p>This Month</p>
+                            <strong id="hero-month-leads">0</strong>
+                        </article>
+                        <article class="kpi card-soft">
+                            <p>Weekly Growth</p>
+                            <strong id="hero-weekly-growth">0%</strong>
+                        </article>
+                    </div>
+
+                    <div class="pipeline card-soft">
+                        <h2>Funnel highlights</h2>
+                        <ul>
+                            <li><span>Lead capture via form or chatbot</span><b>Unified</b></li>
+                            <li><span>Auto assignment + notifications</span><b>Enabled</b></li>
+                            <li><span>Demo booking + confirmations</span><b>Live</b></li>
+                            <li><span>Dashboard analytics + charts</span><b>Real-time</b></li>
+                        </ul>
+                    </div>
+                </aside>
+            </section>
         </div>
-        <div class="hero-visual">
-            <div class="hero-floating-cards">
-                <div class="floating-card fc-stats" data-depth="1.5">
-                    <div class="fc-icon fc-icon-blue"><i class="fas fa-users"></i></div>
-                    <div class="fc-body">
-                        <span class="fc-value" data-count="1284">0</span>
-                        <span class="fc-label">Active Leads</span>
-                    </div>
-                    <span class="fc-badge fc-badge-up"><i class="fas fa-arrow-up"></i> 23%</span>
+    </header>
+
+    <main>
+        <section id="trust" class="section trust">
+            <div class="container">
+                <div class="section-head centered">
+                    <span class="eyebrow">Trust signals</span>
+                    <h2>Built like a SaaS funnel, not a cluttered brochure page</h2>
+                    <p>
+                        Clean conversion paths, zero overlapping UI, and one connected data layer from public landing page to staff pipeline.
+                    </p>
                 </div>
-                <div class="floating-card fc-demo" data-depth="2">
-                    <div class="fc-icon fc-icon-violet"><i class="fas fa-calendar-check"></i></div>
-                    <div class="fc-body">
-                        <span class="fc-value" data-count="342">0</span>
-                        <span class="fc-label">Demos Booked</span>
-                    </div>
-                    <span class="fc-badge fc-badge-up"><i class="fas fa-arrow-up"></i> 18%</span>
-                </div>
-                <div class="floating-card fc-conversion" data-depth="1">
-                    <div class="fc-icon fc-icon-emerald"><i class="fas fa-chart-line"></i></div>
-                    <div class="fc-body">
-                        <span class="fc-value fc-value-pct" data-count="67">0</span>
-                        <span class="fc-label">Conversion Rate</span>
-                    </div>
-                    <div class="fc-mini-chart">
-                        <svg viewBox="0 0 80 24" fill="none"><path d="M0 20 Q10 18 16 14 T32 10 T48 8 T64 4 T80 2" stroke="url(#chartGrad)" stroke-width="2" stroke-linecap="round"/><defs><linearGradient id="chartGrad" x1="0" y1="0" x2="80" y2="0"><stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs></svg>
-                    </div>
-                </div>
-                <div class="floating-card fc-notification" data-depth="2.5">
-                    <div class="fc-notif-dot"></div>
-                    <i class="fas fa-bell"></i>
-                    <span>New lead from <strong>Bengaluru</strong></span>
-                    <small>Just now</small>
+
+                <div class="stats-grid">
+                    <article class="stat card">
+                        <strong id="trust-total-leads">0</strong>
+                        <p>Total leads captured inside the CRM</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-today-leads">0</strong>
+                        <p>Fresh inbound leads today</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-total-bookings">0</strong>
+                        <p>Demos booked through the funnel</p>
+                    </article>
+                    <article class="stat card">
+                        <strong id="trust-conversion-count">0</strong>
+                        <p>Converted leads tracked in the system</p>
+                    </article>
                 </div>
             </div>
-            <aside class="hero-panel glass-card stats-card">
-                <div class="hero-panel-header">
+        </section>
+
+        <section id="problem-solution" class="section problem-solution">
+            <div class="container split-layout">
+                <article class="problem card">
+                    <span class="eyebrow">Problem</span>
+                    <h2>Messy CRM pages create friction before your team can even respond.</h2>
+                    <ul>
+                        <li>Overlapping widgets and duplicate forms confuse visitors and lower lead quality.</li>
+                        <li>Too many visible domains clutter the page and bury the main call to action.</li>
+                        <li>Disconnected lead, demo, and chatbot flows leave staff without one reliable source of truth.</li>
+                    </ul>
+                </article>
+
+                <article class="solution card">
+                    <span class="eyebrow">Solution</span>
+                    <h2>One conversion funnel with a single CRM data path from interest to demo.</h2>
+                    <div class="solution-cards">
+                        <section class="card-soft feature">
+                            <h3>Capture</h3>
+                            <p>Use one primary conversion form on the page, with the chatbot as a guided alternative instead of a competing widget.</p>
+                        </section>
+                        <section class="card-soft feature">
+                            <h3>Qualify</h3>
+                            <p>Route leads into the right domain, staff assignment, and follow-up logic the moment they enter the funnel.</p>
+                        </section>
+                        <section class="card-soft feature">
+                            <h3>Convert</h3>
+                            <p>Turn captured leads into booked demos with availability checks, confirmations, and live admin reporting.</p>
+                        </section>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="domain-explorer" class="section domain-explorer">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Domain explorer</span>
+                    <h2>Reduce clutter while still letting visitors discover the right path</h2>
+                    <p>Featured tracks stay visible, and the rest of the catalog is available through search and filters instead of overwhelming the page.</p>
+                </div>
+
+                <div class="domain-browser card">
+                    <div class="domain-browser-toolbar">
+                        <label class="search-shell" for="domain-search">
+                            <span>Search domain</span>
+                            <input id="domain-search" type="search" placeholder="Search Business Analysis, Analytics, Product, CRM..." />
+                        </label>
+
+                        <div class="filter-row" role="group" aria-label="Domain categories">
+                            <button class="filter-btn is-active" type="button" data-filter="all">All</button>
+                            <button class="filter-btn" type="button" data-filter="Business Analysis">Business Analysis</button>
+                            <button class="filter-btn" type="button" data-filter="Analytics">Analytics</button>
+                            <button class="filter-btn" type="button" data-filter="Product & Delivery">Product & Delivery</button>
+                            <button class="filter-btn" type="button" data-filter="Technology">Technology</button>
+                        </div>
+                    </div>
+
+                    <div class="domain-browser-summary">
+                        <span id="domain-results-summary">0 domains shown</span>
+                        <button id="domain-clear" type="button" class="btn btn-secondary btn-sm" hidden>Clear filters</button>
+                    </div>
+
+                    <div id="domain-grid" class="domain-grid" aria-live="polite">
+                        @foreach (var domain in featuredDomainOptions)
+                        {
+                            <button type="button" class="domain-card card-soft" data-domain="@domain.Name" data-category="@domain.Category">
+                                <span class="domain-category">@domain.Category</span>
+                                <strong>@domain.Name</strong>
+                                <p>@domain.Description</p>
+                                <span class="domain-action">Use this track</span>
+                            </button>
+                        }
+                    </div>
+
+                    <div class="domain-load-more">
+                        <button id="domain-load-more" type="button" class="btn btn-secondary">Load more domains</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo-cta" class="section demo">
+            <div class="container">
+                <div class="demo-card card">
+                    <div class="demo-copy">
+                        <span class="eyebrow">Demo booking funnel</span>
+                        <h2>Capture a lead once. Book the demo in the same guided flow.</h2>
+                        <p>
+                            This is the primary on-page conversion path. We keep one visible form experience, then unlock the booking step after the lead is saved.
+                        </p>
+
+                        <ul class="demo-points">
+                            <li>Lead capture posts directly to the CRM API</li>
+                            <li>Demo slots are checked for availability before booking</li>
+                            <li>WhatsApp, email, admin alerts, and staff assignment can trigger automatically</li>
+                        </ul>
+
+                        <div id="lead-state-card" class="lead-state card-soft" data-locked="true">
+                            <span class="lead-state-label">Current status</span>
+                            <strong id="lead-state-title">Lead capture required</strong>
+                            <p id="lead-state-copy">Complete step one to unlock demo booking with the new Lead ID connected automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="demo-workflow card-soft">
+                        <div class="stepper" aria-label="Lead capture steps">
+                            <span class="step-chip is-active" data-step-chip="lead">1. Lead</span>
+                            <span class="step-chip" data-step-chip="demo">2. Demo</span>
+                        </div>
+
+                        <section id="lead-step" class="workflow-step">
+                            <div class="workflow-head">
+                                <h3>Step 1. Create lead</h3>
+                                <p>Collect the core CRM fields once, then continue straight to demo booking.</p>
+                            </div>
+
+                            <form id="lead-capture-form" class="stack-form" novalidate>
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Full Name</span>
+                                        <input name="name" type="text" placeholder="John Doe" required maxlength="120" />
+                                    </label>
+                                    <label>
+                                        <span>Phone</span>
+                                        <input name="phone" type="tel" placeholder="+91 9876543210" required maxlength="20" />
+                                    </label>
+                                    <label>
+                                        <span>Email</span>
+                                        <input name="email" type="email" placeholder="john@company.com" required maxlength="150" />
+                                    </label>
+                                    <label>
+                                        <span>Location</span>
+                                        <input name="location" type="text" placeholder="Hyderabad" required maxlength="120" />
+                                    </label>
+                                </div>
+
+                                <label>
+                                    <span>Interested Domain</span>
+                                    <select id="lead-domain" name="domain" required>
+                                        <option value="">Select a domain</option>
+                                        @foreach (var domain in featuredDomainOptions)
+                                        {
+                                            <option value="@domain.Name">@domain.Name</option>
+                                        }
+                                    </select>
+                                </label>
+
+                                <div class="form-actions">
+                                    <button id="lead-submit" type="submit" class="btn btn-primary">Create Lead And Continue</button>
+                                    <span id="lead-form-status" class="form-status" aria-live="polite"></span>
+                                </div>
+                            </form>
+                        </section>
+
+                        <section id="demo-step" class="workflow-step is-hidden" aria-hidden="true">
+                            <div class="workflow-head">
+                                <h3>Step 2. Book demo</h3>
+                                <p>Your lead is already saved. Choose a preferred date and time slot to complete the funnel.</p>
+                            </div>
+
+                            <form id="demo-booking-form" class="stack-form" novalidate>
+                                <input id="demo-lead-id" name="leadId" type="hidden" />
+                                <div class="form-grid">
+                                    <label>
+                                        <span>Preferred Date</span>
+                                        <input id="demo-date" name="date" type="date" required />
+                                    </label>
+                                    <label>
+                                        <span>Time Slot</span>
+                                        <select id="demo-time-slot" name="timeSlot" required>
+                                            <option value="">Select a slot</option>
+                                            <option value="Morning">Morning</option>
+                                            <option value="Afternoon">Afternoon</option>
+                                            <option value="Evening">Evening</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div id="availability-status" class="availability-status" aria-live="polite"></div>
+
+                                <div class="form-actions">
+                                    <button id="demo-submit" type="submit" class="btn btn-primary">Confirm Demo</button>
+                                    <span id="demo-form-status" class="form-status" aria-live="polite"></span>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="section testimonials">
+            <div class="container">
+                <div class="section-head centered">
+                    <span class="eyebrow">Testimonials</span>
+                    <h2>Teams using this funnel spend less time coordinating and more time converting.</h2>
+                </div>
+
+                <div class="testimonial-grid">
+                    <article class="testimonial card">
+                        <p>"We replaced a cluttered admissions page with one guided funnel and immediately improved demo intent quality."</p>
+                        <div class="author">
+                            <strong>Ritika Sharma</strong>
+                            <span>Head of Admissions, NorthEdge Academy</span>
+                        </div>
+                    </article>
+
+                    <article class="testimonial card">
+                        <p>"The chatbot now feels helpful instead of intrusive, and our mobile conversion flow finally behaves the same as desktop."</p>
+                        <div class="author">
+                            <strong>Daniel Reed</strong>
+                            <span>Growth Lead, FutureSkills</span>
+                        </div>
+                    </article>
+
+                    <article class="testimonial card">
+                        <p>"Lead capture, staff assignment, booking, and follow-up all sit on one backend now. Our team works from one system instead of three."</p>
+                        <div class="author">
+                            <strong>Meera Iyer</strong>
+                            <span>Director, Elevate Learning</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section final-cta">
+            <div class="container">
+                <div class="final-cta-card card">
                     <div>
-                        <span class="mini-kicker">Career consultation</span>
-                        <h3>Start your guided admission journey</h3>
+                        <span class="eyebrow">Final call to action</span>
+                        <h2>Launch a cleaner CRM funnel that actually connects to your backend.</h2>
+                        <p>Use the on-page flow or open the chatbot to create a lead, book a demo, and push real data into the CRM immediately.</p>
                     </div>
-                    <div class="hero-panel-badge"><span class="live-dot"></span> Live in CRM</div>
-                </div>
-                <form id="lead-form" class="stack-form">
-                    <div class="input-grid">
-                        <div class="input-glow-wrap">
-                            <input type="text" name="name" placeholder="Full name" required />
-                        </div>
-                        <div class="input-glow-wrap">
-                            <input type="tel" name="phone" placeholder="Phone number" required />
-                        </div>
+                    <div class="final-cta-actions">
+                        <a href="#demo-cta" class="btn btn-primary btn-lg">Start The Funnel</a>
+                        <a href="/Auth/Login" class="btn btn-secondary btn-lg">Open CRM Login</a>
                     </div>
-                    <div class="input-grid">
-                        <div class="input-glow-wrap">
-                            <input type="email" name="email" placeholder="Email address" required />
-                        </div>
-                        <div class="input-glow-wrap">
-                            <input type="text" name="location" placeholder="Location" required />
-                        </div>
-                    </div>
-                    <div class="input-glow-wrap">
-                        <select name="domain" required>
-                            <option value="">Choose domain</option>
-                            @foreach (var domain in domains)
-                            {
-                                <option value="@domain">@domain</option>
-                            }
-                        </select>
-                    </div>
-                    <input type="hidden" name="source" value="Website" />
-                    <button type="submit" class="btn btn-primary btn-glow full">
-                        <span>Get Program Guidance</span>
-                        <i class="fas fa-arrow-right btn-icon-animated"></i>
-                    </button>
-                    <p class="form-caption"><i class="fas fa-lock" style="margin-right:4px;opacity:0.5"></i> Your details land directly in the CRM — instant counselor follow-up.</p>
-                    <p id="lead-form-status" class="status-text"></p>
-                </form>
-            </aside>
-        </div>
-    </div>
-</section>
-
-<section class="section domain-section">
-    <div class="section-heading">
-        <span class="eyebrow">Career domains</span>
-        <h2>Industry-ready tracks mapped to real hiring outcomes.</h2>
-        <p>Offer a broad course catalogue without losing funnel clarity. Every enquiry is captured in one system with domain-level visibility.</p>
-    </div>
-
-    <!-- UPGRADED DOMAIN UI -->
-    <div class="domain-controls">
-        <div class="domain-search-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="text" id="domain-search" placeholder="Search track (e.g. Banking, Supply Chain)..." />
-        </div>
-        <div class="domain-filters">
-            <button class="filter-btn active" data-filter="all">All Tracks</button>
-            <button class="filter-btn" data-filter="BA">BA</button>
-            <button class="filter-btn" data-filter="Analytics">Analytics</button>
-            <button class="filter-btn" data-filter="Tech">Tech</button>
-            <button class="filter-btn" data-filter="Management">Management</button>
-        </div>
-    </div>
-
-    <div class="domain-grid" id="domain-card-grid">
-        @foreach (var domain in domains)
-        {
-            var category = domain.Contains("Analyst") ? "BA" :
-                           domain.Contains("Data") || domain.Contains("Analytics") ? "Analytics" :
-                           domain.Contains("Scrum") || domain.Contains("QA") ? "Tech" : "Management";
-
-            var icon = domain.Contains("Banking") ? "fa-university" :
-                       domain.Contains("Healthcare") ? "fa-heartbeat" :
-                       domain.Contains("Retail") ? "fa-shopping-cart" :
-                       domain.Contains("Finance") ? "fa-coins" :
-                       domain.Contains("Telecom") ? "fa-signal" : "fa-graduation-cap";
-
-            <div class="domain-card" data-category="@category" data-name="@domain.ToLower()">
-                <div class="domain-card-icon">
-                    <i class="fas @icon"></i>
-                </div>
-                <h4>@domain</h4>
-                <span class="domain-card-tag">@category</span>
-            </div>
-        }
-    </div>
-</section>
-
-<section class="section section-contrast">
-    <div class="section-heading">
-        <span class="eyebrow">Placement engine</span>
-        <h2>Built to move curiosity toward confident action.</h2>
-    </div>
-    <div class="story-grid">
-        <article class="story-card glass-card">
-            <span class="story-step">01</span>
-            <h3>Capture</h3>
-            <p>Collect lead intent, location, and domain preference in a branded flow that feels premium from the first interaction.</p>
-        </article>
-        <article class="story-card glass-card">
-            <span class="story-step">02</span>
-            <h3>Qualify</h3>
-            <p>Move every enquiry into a structured admissions pipeline with counselor visibility, AI chat support, and reliable lead IDs.</p>
-        </article>
-        <article class="story-card glass-card">
-            <span class="story-step">03</span>
-            <h3>Convert</h3>
-            <p>Guide prospects into demo booking, reminders, and follow-up journeys that turn interest into enrollment-ready momentum.</p>
-        </article>
-    </div>
-</section>
-
-<section class="section">
-    <div class="section-heading">
-        <span class="eyebrow">Success stories</span>
-        <h2>Learner outcomes that build trust before the first call.</h2>
-    </div>
-    <div class="testimonial-grid">
-        <article class="glass-card testimonial-card"><p>"The BA course and mock interviews helped me break into a new role confidently."</p><strong>Anusha, Hyderabad</strong></article>
-        <article class="glass-card testimonial-card"><p>"The structure felt serious and placement support made the transition more realistic."</p><strong>Rahul, Pune</strong></article>
-        <article class="glass-card testimonial-card"><p>"Weekend learning plus mentor guidance fit perfectly with my work schedule."</p><strong>Sneha, Bengaluru</strong></article>
-    </div>
-</section>
-
-<section class="section section-contrast">
-    <div class="glass-card cta-strip">
-        <div>
-            <span class="mini-kicker">Start Your Journey</span>
-            <h3>Ready to accelerate your career transition with guided mentorship?</h3>
-            <p>Connect with our advisors to map your roadmap, explore role-aligned tracks, and reserve a live interactive demo.</p>
-        </div>
-        <div class="cta-strip-actions">
-            <a href="#demo-booking" class="btn btn-primary">Book Demo</a>
-            <a href="#lead-form" class="btn btn-secondary">Talk to Advisor</a>
-        </div>
-    </div>
-</section>
-
-<section id="demo-booking" class="section demo-section">
-    <div class="demo-section-bg"></div>
-    <div class="demo-content">
-        <div class="cta-copy">
-            <span class="eyebrow"><i class="fas fa-rocket"></i> Ready to act?</span>
-            <h2>Book a free demo and connect with a COEPD advisor.</h2>
-            <p>Lead IDs are auto-filled after the first submission, so demo booking becomes the natural next step in the funnel.</p>
-            <div class="cta-points">
-                <span><i class="fas fa-check-circle"></i> Structured slots</span>
-                <span><i class="fas fa-check-circle"></i> Instant CRM update</span>
-                <span><i class="fas fa-check-circle"></i> Reminder-ready workflow</span>
-            </div>
-        </div>
-        <div class="demo-form-card">
-            <div class="demo-steps-indicator">
-                <div class="demo-step active" data-step="1">
-                    <span class="demo-step-num">1</span>
-                    <span class="demo-step-label">Your Info</span>
-                </div>
-                <div class="demo-step-line"></div>
-                <div class="demo-step" data-step="2">
-                    <span class="demo-step-num">2</span>
-                    <span class="demo-step-label">Schedule</span>
                 </div>
             </div>
-            <form id="demo-form" class="demo-form">
-                <div class="demo-form-step demo-form-step--active" data-step="1">
-                    <div class="demo-input-group">
-                        <label for="demo-leadId">Lead ID</label>
-                        <div class="demo-input-wrap">
-                            <i class="fas fa-id-badge"></i>
-                            <input id="demo-leadId" type="number" name="leadId" placeholder="Enter your Lead ID" required />
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-demo-next">Continue <i class="fas fa-arrow-right"></i></button>
-                </div>
-                <div class="demo-form-step" data-step="2">
-                    <div class="demo-input-group">
-                        <label for="demo-day">Preferred Day</label>
-                        <div class="demo-input-wrap">
-                            <i class="fas fa-calendar-alt"></i>
-                            <select id="demo-day" name="day" required>
-                                <option value="">Select day</option>
-                                <option value="Weekday">Weekday</option>
-                                <option value="Weekend">Weekend</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="demo-input-group">
-                        <label for="demo-slot">Time Slot</label>
-                        <div class="demo-input-wrap">
-                            <i class="fas fa-clock"></i>
-                            <select id="demo-slot" name="slot" required>
-                                <option value="">Select slot</option>
-                                <option value="Morning">Morning (10 AM)</option>
-                                <option value="Evening">Evening (6 PM)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="demo-form-actions">
-                        <button type="button" class="btn btn-demo-back"><i class="fas fa-arrow-left"></i> Back</button>
-                        <button type="submit" class="btn btn-demo-submit">
-                            <i class="fas fa-calendar-check"></i> Confirm Demo
-                        </button>
-                    </div>
-                </div>
-                <p id="demo-form-status" class="status-text"></p>
-            </form>
-            <div class="demo-trust">
-                <i class="fas fa-shield-alt"></i>
-                <span>100% free &middot; No credit card &middot; Instant confirmation</span>
-            </div>
-        </div>
-    </div>
-</section>
+        </section>
+    </main>
 
-<div id="chatbot-widget" class="chatbot">
-    <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open chat">
-        <svg class="chatbot-toggle-icon chatbot-icon-chat" width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 2C7.373 2 2 6.925 2 13c0 3.17 1.458 6.025 3.8 8.025L4.5 25.5l5.2-2.6C11.1 23.6 12.5 24 14 24c6.627 0 12-4.925 12-11S20.627 2 14 2z" fill="#fff"/></svg>
-        <svg class="chatbot-toggle-icon chatbot-icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:none"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
-    </button>
-    <div id="chatbot-panel" class="chatbot-panel chatbot-panel--closed">
-        <div class="chatbot-header">
-            <div class="chatbot-header-left">
-                <div class="chatbot-avatar">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a5 5 0 015 5v1a5 5 0 01-10 0V7a5 5 0 015-5zm-7 18a7 7 0 0114 0H5z" fill="#fff"/></svg>
-                </div>
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>&copy; 2026 COEPD AI Funnel OS. Clean UI, connected CRM workflows, and production-ready lead operations.</p>
+        </div>
+    </footer>
+
+    <div class="chatbot" aria-live="polite">
+        <button id="chatbot-toggle" class="chatbot-toggle" type="button" aria-expanded="false" aria-controls="chatbot-panel" aria-label="Open chatbot">
+            <span>Chat</span>
+        </button>
+
+        <section id="chatbot-panel" class="chatbot-panel card" aria-label="Lead capture assistant" hidden>
+            <header class="chatbot-head">
                 <div>
-                    <strong>COEPD Advisor</strong>
-                    <span class="chatbot-status"><span class="chatbot-status-dot"></span>Online</span>
+                    <strong>COEPD Assistant</strong>
+                    <span>Lead capture and demo booking</span>
                 </div>
+                <button id="chatbot-close" type="button" aria-label="Close chatbot">x</button>
+            </header>
+
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="msg bot">Welcome to COEPD AI Funnel OS. I can capture your details and book a demo in under 2 minutes.</div>
             </div>
-            <button id="chatbot-close" class="chatbot-close" aria-label="Close chat">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-        <div id="chatbot-messages" class="chatbot-messages"></div>
-        <div id="chatbot-quick-replies" class="chatbot-quick-replies"></div>
-        <form id="chatbot-form" class="chatbot-form">
-            <input id="chatbot-input" type="text" placeholder="Type a message..." autocomplete="off" />
-            <button type="submit" aria-label="Send message">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-        </form>
+
+            <div id="chatbot-quick-replies" class="chatbot-quick-replies"></div>
+
+            <form id="chatbot-form" class="chatbot-input" autocomplete="off">
+                <input id="chatbot-text" type="text" placeholder="Type your message" maxlength="240" required />
+                <button type="submit" aria-label="Send message">Send</button>
+            </form>
+        </section>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        window.coepdDomainCatalog = @Html.Raw(domainJson);
+    </script>
+}

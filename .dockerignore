@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+*.log
+*.db
+*.db-shm
+*.db-wal
+App_Data/
+vite-project/node_modules/

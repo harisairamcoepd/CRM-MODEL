@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: coepd-crm
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: Database__Provider
+        value: SqlServer
+      - key: Jwt__Issuer
+        value: COEPD.SalesFunnel
+      - key: Jwt__Audience
+        value: COEPD.SalesFunnel.Client

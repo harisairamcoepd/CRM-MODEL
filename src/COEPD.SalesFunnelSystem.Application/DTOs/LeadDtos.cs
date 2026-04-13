@@ -26,6 +26,8 @@ public class LeadResponse
     public string Score { get; set; } = string.Empty;
     public string? Notes { get; set; }
     public string FunnelStage { get; set; } = string.Empty;
+    public int? AssignedStaffId { get; set; }
+    public string? AssignedStaffName { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
@@ -51,6 +53,7 @@ public class UpdateLeadStatusResponse
     public int Id { get; set; }
     public string Status { get; set; } = string.Empty;
     public string FunnelStage { get; set; } = string.Empty;
+    public int? AssignedStaffId { get; set; }
 }
 
 public class PipelineStageBucket
@@ -73,4 +76,11 @@ public class PipelineBoardResponse
 public class MoveLeadStageRequest
 {
     public string Stage { get; set; } = string.Empty;
+}
+
+public class LeadAssignmentResponse
+{
+    public int LeadId { get; set; }
+    public int? AssignedStaffId { get; set; }
+    public string? AssignedStaffName { get; set; }
 }

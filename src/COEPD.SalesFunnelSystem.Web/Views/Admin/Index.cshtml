@@ -20,6 +20,7 @@
             <p class="text-subtle">A HubSpot-style overview of acquisition, funnel movement, and lead readiness across every domain.</p>
         </div>
         <div class="crm-hero-actions">
+            <span id="dashboard-refresh-status" class="crm-chip"><i class="ph ph-broadcast"></i> Live sync ready</span>
             <a href="/admin/leads" class="btn btn-secondary"><i class="ph ph-users-three"></i> Open Lead Desk</a>
             <button class="btn btn-primary" onclick="window.print()"><i class="ph ph-download-simple"></i> Export Snapshot</button>
         </div>
@@ -49,7 +50,7 @@
                 <span>Conversion Rate</span>
                 <i class="ph ph-target"></i>
             </div>
-            <strong>@conversionRate%</strong>
+            <strong data-stat="conversionRate">@conversionRate%</strong>
             <p>@stats?.ConversionCount converted leads from the total pool.</p>
         </article>
 
@@ -58,7 +59,7 @@
                 <span>Demo Queue</span>
                 <i class="ph ph-presentation-chart"></i>
             </div>
-            <strong>@demoBookedCount</strong>
+            <strong data-stat="demoBookedLeads">@demoBookedCount</strong>
             <p>Qualified leads waiting for demo progression.</p>
         </article>
     </div>
@@ -266,4 +267,5 @@ window.dashboardData = {
     source: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(stats?.SourceBreakdown ?? new Dictionary<string, int>()))
 };
 </script>
+<script src="~/js/admin-dashboard.js"></script>
 }

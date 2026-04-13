@@ -29,11 +29,10 @@ public class AdminController : Controller
         var allLeads = await _leadService.GetAllAsync(new LeadFilterRequest(), cancellationToken);
 
         ViewBag.Stats = await _analyticsService.GetStatsAsync(cancellationToken);
-        ViewBag.Growth = await _analyticsService.GetLeadGrowthAsync(cancellationToken);
+        ViewBag.Growth = await _analyticsService.GetLeadGrowthAsync(14, cancellationToken);
         ViewBag.Funnel = await _funnelTrackingService.GetAnalyticsAsync(14, cancellationToken);
         ViewBag.Filter = filter;
         ViewBag.Domains = allLeads.Select(x => x.Domain).Distinct().OrderBy(x => x).ToList();
-        ViewBag.ApiToken = User.Claims.FirstOrDefault(x => x.Type == "access_token")?.Value ?? string.Empty;
         return View(leads);
     }
 
@@ -45,7 +44,6 @@ public class AdminController : Controller
 
         ViewBag.Filter = filter;
         ViewBag.Domains = allLeads.Select(x => x.Domain).Distinct().OrderBy(x => x).ToList();
-        ViewBag.ApiToken = User.Claims.FirstOrDefault(x => x.Type == "access_token")?.Value ?? string.Empty;
         return View(leads);
     }
 }

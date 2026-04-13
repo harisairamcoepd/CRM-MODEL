@@ -14,6 +14,7 @@ public class DemoBookingService : IDemoBookingService
     private readonly IEmailAutomationService _emailAutomationService;
     private readonly IWhatsAppAutomationService _whatsAppAutomationService;
     private readonly IAnalyticsService _analyticsService;
+    private readonly ILeadActivityRepository _leadActivityRepository;
     private readonly ILogger<DemoBookingService> _logger;
 
     public DemoBookingService(
@@ -23,6 +24,7 @@ public class DemoBookingService : IDemoBookingService
         IEmailAutomationService emailAutomationService,
         IWhatsAppAutomationService whatsAppAutomationService,
         IAnalyticsService analyticsService,
+        ILeadActivityRepository leadActivityRepository,
         ILogger<DemoBookingService> logger)
     {
         _demoBookingRepository = demoBookingRepository;
@@ -31,6 +33,7 @@ public class DemoBookingService : IDemoBookingService
         _emailAutomationService = emailAutomationService;
         _whatsAppAutomationService = whatsAppAutomationService;
         _analyticsService = analyticsService;
+        _leadActivityRepository = leadActivityRepository;
         _logger = logger;
     }
 
@@ -44,8 +47,8 @@ public class DemoBookingService : IDemoBookingService
 
         var lead = await _leadRepository.GetByIdAsync(leadId, cancellationToken) ?? throw new NotFoundException("Lead not found.");
 
-        var day = request.Day.Trim();
-        var slot = request.Slot.Trim();
+        var day = request.Date.Trim();
+        var slot = request.TimeSlot.Trim();
 
         var slotAvailable = await _demoBookingRepository.IsSlotAvailableAsync(day, slot, cancellationToken);
         if (!slotAvailable)
@@ -74,28 +77,56 @@ public class DemoBookingService : IDemoBookingService
 
         try
         {
-            await _emailAutomationService.TriggerDemoReminderAsync(lead, cancellationToken);
+            await _emailAutomationService.TriggerDemoConfirmationAsync(lead, day, slot, cancellationToken);
+            await _leadActivityRepository.AddAsync(new LeadActivityLog
+            {
+                LeadId = lead.Id,
+                ActivityType = "DemoConfirmationEmail",
+                Message = $"Demo confirmation email sent for {day} {slot}.",
+                Status = "Success"
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Demo reminder email failed for lead {LeadId}", lead.Id);
+            await _leadActivityRepository.AddAsync(new LeadActivityLog
+            {
+                LeadId = lead.Id,
+                ActivityType = "DemoConfirmationEmail",
+                Message = "Demo confirmation email failed.",
+                Status = "Failed"
+            }, cancellationToken);
         }
 
         try
         {
             await _whatsAppAutomationService.SendDemoReminderAsync(lead, day, slot, cancellationToken);
+            await _leadActivityRepository.AddAsync(new LeadActivityLog
+            {
+                LeadId = lead.Id,
+                ActivityType = "DemoConfirmationWhatsApp",
+                Message = $"Demo WhatsApp confirmation sent for {day} {slot}.",
+                Status = "Success"
+            }, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Demo reminder WhatsApp failed for lead {LeadId}", lead.Id);
+            await _leadActivityRepository.AddAsync(new LeadActivityLog
+            {
+                LeadId = lead.Id,
+                ActivityType = "DemoConfirmationWhatsApp",
+                Message = "Demo WhatsApp confirmation failed.",
+                Status = "Failed"
+            }, cancellationToken);
         }
 
         return new DemoBookingResponse
         {
             Id = created.Id,
             LeadId = created.LeadId,
-            Day = created.Day,
-            Slot = created.Slot,
+            Date = created.Day,
+            TimeSlot = created.Slot,
             Status = created.Status,
             CreatedAt = created.CreatedAt
         };
@@ -119,8 +150,8 @@ public class DemoBookingService : IDemoBookingService
 
         return new DemoSlotAvailabilityResponse
         {
-            Day = normalizedDay,
-            Slot = normalizedSlot,
+            Date = normalizedDay,
+            TimeSlot = normalizedSlot,
             IsAvailable = isAvailable
         };
     }
@@ -143,8 +174,8 @@ public class DemoBookingService : IDemoBookingService
         {
             Id = x.Id,
             LeadId = x.LeadId,
-            Day = x.Day,
-            Slot = x.Slot,
+            Date = x.Day,
+            TimeSlot = x.Slot,
             Status = x.Status,
             CreatedAt = x.CreatedAt
         }).ToList();
@@ -168,8 +199,8 @@ public class DemoBookingService : IDemoBookingService
         {
             Id = booking.Id,
             LeadId = booking.LeadId,
-            Day = booking.Day,
-            Slot = booking.Slot,
+            Date = booking.Day,
+            TimeSlot = booking.Slot,
             Status = booking.Status,
             CreatedAt = booking.CreatedAt
         };

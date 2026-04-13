@@ -7,6 +7,7 @@ namespace COEPD.SalesFunnelSystem.Application.Services;
 public class AnalyticsService : IAnalyticsService
 {
     private const string DashboardStatsCacheKey = "dashboard-stats";
+    private const string LeadStatsCacheKey = "lead-stats";
     private const string LeadGrowthCacheKey = "lead-growth";
     private const string LeadAnalyticsCacheKey = "lead-analytics";
     private readonly ILeadRepository _leadRepository;
@@ -49,12 +50,46 @@ public class AnalyticsService : IAnalyticsService
         }) ?? new DashboardStatsResponse();
     }
 
-    public async Task<List<LeadGrowthPoint>> GetLeadGrowthAsync(CancellationToken cancellationToken = default) =>
-        await _memoryCache.GetOrCreateAsync(LeadGrowthCacheKey, async entry =>
+    public async Task<LeadStatsResponse> GetLeadStatsAsync(CancellationToken cancellationToken = default) =>
+        await _memoryCache.GetOrCreateAsync(LeadStatsCacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20);
 
-            return (await _leadRepository.GetLeadGrowthAsync(7, cancellationToken))
+            var totalLeads = await _leadRepository.CountAsync(cancellationToken);
+            var todayLeads = await _leadRepository.CountTodayAsync(cancellationToken);
+            var thisMonthLeads = await _leadRepository.CountThisMonthAsync(cancellationToken);
+            var demoBookedLeads = await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.DemoBooked, cancellationToken)
+                + await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.Demo, cancellationToken)
+                + await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.BookedLegacy, cancellationToken);
+            var convertedLeads = await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.Converted, cancellationToken);
+            var newLeads = await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.New, cancellationToken);
+            var contactedLeads = await _leadRepository.CountByStatusAsync(Domain.Entities.LeadStatuses.Contacted, cancellationToken);
+
+            return new LeadStatsResponse
+            {
+                TotalLeads = totalLeads,
+                TodayLeads = todayLeads,
+                ThisMonthLeads = thisMonthLeads,
+                DemoBookedLeads = demoBookedLeads,
+                ConvertedLeads = convertedLeads,
+                ConversionRate = totalLeads == 0 ? 0 : Math.Round((decimal)convertedLeads / totalLeads * 100m, 2),
+                StatusBreakdown = new Dictionary<string, int>
+                {
+                    ["New"] = newLeads,
+                    ["Contacted"] = contactedLeads,
+                    ["DemoBooked"] = demoBookedLeads,
+                    ["Converted"] = convertedLeads
+                }
+            };
+        }) ?? new LeadStatsResponse();
+
+    public async Task<List<LeadGrowthPoint>> GetLeadGrowthAsync(int days = 7, CancellationToken cancellationToken = default) =>
+        await _memoryCache.GetOrCreateAsync($"{LeadGrowthCacheKey}:{Math.Clamp(days, 1, 90)}", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20);
+            var safeDays = Math.Clamp(days, 1, 90);
+
+            return (await _leadRepository.GetLeadGrowthAsync(safeDays, cancellationToken))
                 .Select(x => new LeadGrowthPoint { Label = x.Date.ToString("dd MMM"), Count = x.Count })
                 .ToList();
         }) ?? [];
@@ -97,7 +132,7 @@ public class AnalyticsService : IAnalyticsService
     public void InvalidateDashboardCache()
     {
         _memoryCache.Remove(DashboardStatsCacheKey);
-        _memoryCache.Remove(LeadGrowthCacheKey);
+        _memoryCache.Remove(LeadStatsCacheKey);
         _memoryCache.Remove(LeadAnalyticsCacheKey);
     }
 }
